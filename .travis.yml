@@ -1,11 +1,12 @@
 language: node_js
 node_js:
-  - 12.13.0
+  - 10.17.0
 env:
-  - secure: "ToR7pijTFbsCFqZBcyMa9cDzrp4TwkhnzdyVlOSBLLeS9K213Lh3eVGbkYI4oOFZHUrQyzR6gYKHcAJkSM/jh8cZVEal37IV6M2SZvD/lF8A3oiJJYEg/GDMz5nuDPxQhMODp5OoCtXrjvM5ecHxh102WFHd0DeYgswsDIkoBDmmMcjyk4LSOFkUpHiXt0PV06kk2lE/jt5hJ9/MTguIVqi7iwKm9ZnioVWxpLHQ2JFJwOi5NpQqJIk8FN3lfVHd7o7k67mMILMXjUqIASRSFxe254zAYqF8oLoeRLINria80eow94Fal0IQernAddAvrKF9WNCE1UjcJXUQAO4dTzXfGGDpltLiKwm9j07j+OJOipbdq11BhkEio5FXaQeJ6PrDLeGRuhedqdj9OSj+fheZyQ7tyidVDQBaqo0H7vHc5L7yBiV1quk7Fgz20nd+368fJuhpWQs6jUqQ9kVBUDk0qu0YEcbgUFXmkTJkd9SUiDQuSFFp8r2y391h6A2nQ/44yYJzIdo0f33kvj4c3nfyQ00GTGnUhZ1Ozpl9389EZ/p0AeGVr3VJLJYv7Y1Oym+Y7+dNA1+33xkVgKrUuQVKW0paDO5dzkkc0GNA4OAZVPg+TMjTuABAOv4MWQoqXgQCenwG53L6o835sAcQQ9uRJMrh78EdnrCFN5d96io="cache:
-directories:
-  - ~/.npm
-  - .jest
+  - secure: "ToR7pijTFbsCFqZBcyMa9cDzrp4TwkhnzdyVlOSBLLeS9K213Lh3eVGbkYI4oOFZHUrQyzR6gYKHcAJkSM/jh8cZVEal37IV6M2SZvD/lF8A3oiJJYEg/GDMz5nuDPxQhMODp5OoCtXrjvM5ecHxh102WFHd0DeYgswsDIkoBDmmMcjyk4LSOFkUpHiXt0PV06kk2lE/jt5hJ9/MTguIVqi7iwKm9ZnioVWxpLHQ2JFJwOi5NpQqJIk8FN3lfVHd7o7k67mMILMXjUqIASRSFxe254zAYqF8oLoeRLINria80eow94Fal0IQernAddAvrKF9WNCE1UjcJXUQAO4dTzXfGGDpltLiKwm9j07j+OJOipbdq11BhkEio5FXaQeJ6PrDLeGRuhedqdj9OSj+fheZyQ7tyidVDQBaqo0H7vHc5L7yBiV1quk7Fgz20nd+368fJuhpWQs6jUqQ9kVBUDk0qu0YEcbgUFXmkTJkd9SUiDQuSFFp8r2y391h6A2nQ/44yYJzIdo0f33kvj4c3nfyQ00GTGnUhZ1Ozpl9389EZ/p0AeGVr3VJLJYv7Y1Oym+Y7+dNA1+33xkVgKrUuQVKW0paDO5dzkkc0GNA4OAZVPg+TMjTuABAOv4MWQoqXgQCenwG53L6o835sAcQQ9uRJMrh78EdnrCFN5d96io="
+cache:
+  directories:
+    - ~/.npm
+    - .jest
 before_install:
   - npm install -g npm@latest
 stages:
@@ -14,7 +15,7 @@ stages:
   - name: deploy staging
     if: branch = develop
   - name: deploy production
-    if: branch = master
+    if: branch = master # Can also change this to tags if need be
 jobs:
   include:
     - stage: test
