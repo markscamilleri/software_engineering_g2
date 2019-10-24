@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, Platform } from 'react-native';
-import Geolocation from 'react-native-geolocation-service';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
