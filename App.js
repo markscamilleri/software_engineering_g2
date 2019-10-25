@@ -117,13 +117,6 @@ export default function App() {
 		
 	};
 	
-	function hello() {
-		//alert("Posotion Changed");
-	}
-	
-	//Location.watchPositionAsync({accuracy: 4, timeInterval: 10000}, hello());
-	
-	
 	let text = 'Waiting..';
 	let longtude = 0;
 	let lattude = 0;
