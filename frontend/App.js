@@ -18,6 +18,35 @@ const theme = {
     },
 };
 
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    title: {
+        marginTop: Constants.statusBarHeight + 20,
+        fontSize: 18,
+        textAlign: 'center',
+    },
+    nav: {
+        marginTop: Constants.statusBarHeight,
+    },
+    paragraph: {
+        margin: 24,
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    map: {
+        height: 200,
+        width: 360,
+    },
+    button: {
+        margin: 10,
+    },
+});
+
 export default function App() {
     const [location, setLocation] = useState({location: '', errorMessage: null});
     const [region, setRegion] = useState({
@@ -95,48 +124,7 @@ export default function App() {
             latitude: 0, longitude: 0, title: 'Your Location', subtitle: 'Hello',
         };
         setMark(newMarkerObj);
-        try {
-            const {status} = await Permissions.askAsync(Permissions.LOCATION);
-            if (status === 'granted') {
-                try {
-                    const locationData = await Location.getCurrentPositionAsync({});
-
-                    const latitude = JSON.parse(locationData.coords.latitude);
-                    const longitude = JSON.parse(locationData.coords.longitude);
-
-                    const newLocationObj = {location: locationData, errorMessage: location.errorMessage};
-                    setLocation(newLocationObj);
-
-                    const newRegionObj = {
-                        latitude: latitude, longitude: longitude, latitudeDelta: 0.004, longitudeDelta: 0.01,
-                    };
-                    setRegion(newRegionObj);
-
-                    const newMarkerObj = {
-                        latitude: latitude, longitude: longitude, title: 'Your Location', subtitle: 'Hello',
-                    };
-                    setMark(newMarkerObj);
-                } catch (error) {
-                    console.log(`Permission to turn on phone location was denied: ${error.message}`);
-                    const newLocationObj = {
-                        location: '',
-                        errorMessage: `Permission to turn on phone location was denied: ${error.message}`
-                    };
-                    setLocation(newLocationObj);
-                }
-            } else {
-                console.log(`Permission to access location was denied${error.message}`);
-                const newLocationObj = {location: '', errorMessage: 'Permission to access location was denied'};
-                setLocation(newLocationObj);
-            }
-        } catch (error) {
-            console.log(`There has been a problem with location: ${error.message}`);
-            const newLocationObj = {
-                location: location.location,
-                errorMessage: 'Permission to access location was denied'
-            };
-            setLocation(newLocationObj);
-        }
+        await getLocationAsync()
     };
 
     let text = 'Waiting..';
@@ -196,32 +184,3 @@ export default function App() {
         </>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    title: {
-        marginTop: Constants.statusBarHeight + 20,
-        fontSize: 18,
-        textAlign: 'center',
-    },
-    nav: {
-        marginTop: Constants.statusBarHeight,
-    },
-    paragraph: {
-        margin: 24,
-        fontSize: 14,
-        textAlign: 'center',
-    },
-    map: {
-        height: 200,
-        width: 360,
-    },
-    button: {
-        margin: 10,
-    },
-});
