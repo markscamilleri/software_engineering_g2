@@ -124,7 +124,7 @@ export default function App() {
             latitude: 0, longitude: 0, title: 'Your Location', subtitle: 'Hello',
         };
         setMark(newMarkerObj);
-        await getLocationAsync()
+        await getLocationAsync();
     };
 
     let text = 'Waiting..';
