@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     StyleSheet, Text, View, Platform, SafeAreaView, ScrollView,
 } from 'react-native';
-import {Button, ThemeProvider} from 'react-native-elements';
+import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
-import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
-import {Toolbar} from 'react-native-material-ui';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
+import { Toolbar } from 'react-native-material-ui';
 
 const theme = {
     Button: {
@@ -19,7 +19,7 @@ const theme = {
 };
 
 export default function App() {
-    const [location, setLocation] = useState({location: '', errorMessage: null});
+    const [location, setLocation] = useState({ location: '', errorMessage: null });
     const [region, setRegion] = useState({
         latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121,
     });
@@ -41,7 +41,7 @@ export default function App() {
 
     const getLocationAsync = async () => {
         try {
-            const {status} = await Permissions.askAsync(Permissions.LOCATION);
+            const { status } = await Permissions.askAsync(Permissions.LOCATION);
             if (status === 'granted') {
                 try {
                     const locationData = await Location.getCurrentPositionAsync({});
@@ -49,43 +49,43 @@ export default function App() {
                     const latitude = JSON.parse(locationData.coords.latitude);
                     const longitude = JSON.parse(locationData.coords.longitude);
 
-                    const newLocationObj = {location: locationData, errorMessage: location.errorMessage};
+                    const newLocationObj = { location: locationData, errorMessage: location.errorMessage };
                     setLocation(newLocationObj);
 
                     const newRegionObj = {
-                        latitude: latitude, longitude: longitude, latitudeDelta: 0.004, longitudeDelta: 0.01,
+                        latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.01,
                     };
                     setRegion(newRegionObj);
 
                     const newMarkerObj = {
-                        latitude: latitude, longitude: longitude, title: 'Your Location', subtitle: 'Hello',
+                        latitude, longitude, title: 'Your Location', subtitle: 'Hello',
                     };
                     setMark(newMarkerObj);
                 } catch (error) {
                     console.log(`Permission to turn on phone location was denied: ${error.message}`);
                     const newLocationObj = {
                         location: '',
-                        errorMessage: `Permission to turn on phone location was denied: ${error.message}`
+                        errorMessage: `Permission to turn on phone location was denied: ${error.message}`,
                     };
                     setLocation(newLocationObj);
                 }
             } else {
                 console.log(`Permission to access location was denied${error.message}`);
-                const newLocationObj = {location: '', errorMessage: 'Permission to access location was denied'};
+                const newLocationObj = { location: '', errorMessage: 'Permission to access location was denied' };
                 setLocation(newLocationObj);
             }
         } catch (error) {
             console.log(`There has been a problem with location: ${error.message}`);
             const newLocationObj = {
                 location: location.location,
-                errorMessage: 'Permission to access location was denied'
+                errorMessage: 'Permission to access location was denied',
             };
             setLocation(newLocationObj);
         }
     };
 
     const refresh = async () => {
-        const newLocationObj = {location: '', errorMessage: null};
+        const newLocationObj = { location: '', errorMessage: null };
         setLocation(newLocationObj);
         const newRegionObj = {
             latitude: 0, longitude: 0, latitudeDelta: 0.004, longitudeDelta: 0.01,
@@ -96,7 +96,7 @@ export default function App() {
         };
         setMark(newMarkerObj);
         try {
-            const {status} = await Permissions.askAsync(Permissions.LOCATION);
+            const { status } = await Permissions.askAsync(Permissions.LOCATION);
             if (status === 'granted') {
                 try {
                     const locationData = await Location.getCurrentPositionAsync({});
@@ -104,36 +104,36 @@ export default function App() {
                     const latitude = JSON.parse(locationData.coords.latitude);
                     const longitude = JSON.parse(locationData.coords.longitude);
 
-                    const newLocationObj = {location: locationData, errorMessage: location.errorMessage};
+                    const newLocationObj = { location: locationData, errorMessage: location.errorMessage };
                     setLocation(newLocationObj);
 
                     const newRegionObj = {
-                        latitude: latitude, longitude: longitude, latitudeDelta: 0.004, longitudeDelta: 0.01,
+                        latitude, longitude, latitudeDelta: 0.004, longitudeDelta: 0.01,
                     };
                     setRegion(newRegionObj);
 
                     const newMarkerObj = {
-                        latitude: latitude, longitude: longitude, title: 'Your Location', subtitle: 'Hello',
+                        latitude, longitude, title: 'Your Location', subtitle: 'Hello',
                     };
                     setMark(newMarkerObj);
                 } catch (error) {
                     console.log(`Permission to turn on phone location was denied: ${error.message}`);
                     const newLocationObj = {
                         location: '',
-                        errorMessage: `Permission to turn on phone location was denied: ${error.message}`
+                        errorMessage: `Permission to turn on phone location was denied: ${error.message}`,
                     };
                     setLocation(newLocationObj);
                 }
             } else {
                 console.log(`Permission to access location was denied${error.message}`);
-                const newLocationObj = {location: '', errorMessage: 'Permission to access location was denied'};
+                const newLocationObj = { location: '', errorMessage: 'Permission to access location was denied' };
                 setLocation(newLocationObj);
             }
         } catch (error) {
             console.log(`There has been a problem with location: ${error.message}`);
             const newLocationObj = {
                 location: location.location,
-                errorMessage: 'Permission to access location was denied'
+                errorMessage: 'Permission to access location was denied',
             };
             setLocation(newLocationObj);
         }
@@ -147,53 +147,53 @@ export default function App() {
     }
 
     return (
-        <>
-            <SafeAreaView style={styles.container}>
-                <ScrollView className="" style={styles.scrollView}>
-                    <View style={styles.nav}>
-                        <Toolbar
-                            theme={theme}
-                            leftElement="menu"
-                            centerElement="GPS Location"
-                            searchable={{
+      <>
+        <SafeAreaView style={styles.container}>
+          <ScrollView className="" style={styles.scrollView}>
+            <View style={styles.nav}>
+              <Toolbar
+                theme={theme}
+                leftElement="menu"
+                centerElement="GPS Location"
+                searchable={{
                                 autoFocus: true,
                                 placeholder: 'Search',
                             }}
-                            rightElement={{
+                rightElement={{
                                 menu: {
                                     icon: "more-vert",
                                     labels: ["item 1", "item 2"],
                                 },
                             }}
-                            onRightElementPress={(label) => {
+                onRightElementPress={(label) => {
                                 console.log(label);
                             }}
-                        />
-                    </View>
-                    <Text style={styles.title}>GPS Location - ASE Group 2</Text>
-                    <Text style={styles.paragraph}>{text}</Text>
-                    <View style={styles.mapbox}>
-                        <MapView
-                            provider={PROVIDER_GOOGLE}
-                            style={styles.map}
-                            region={region}
-                        >
-                            <Marker
-                                coordinate={markers}
-                            />
-                        </MapView>
-                    </View>
-                    <View style={styles.button}>
-                        <ThemeProvider theme={theme}>
-                            <Button
-                                title="Refresh Position"
-                                onPress={refresh}
-                            />
-                        </ThemeProvider>
-                    </View>
-                </ScrollView>
-            </SafeAreaView>
-        </>
+              />
+            </View>
+            <Text style={styles.title}>GPS Location - ASE Group 2</Text>
+            <Text style={styles.paragraph}>{text}</Text>
+            <View style={styles.mapbox}>
+              <MapView
+                provider={PROVIDER_GOOGLE}
+                style={styles.map}
+                region={region}
+              >
+                <Marker
+                  coordinate={markers}
+                />
+              </MapView>
+            </View>
+            <View style={styles.button}>
+              <ThemeProvider theme={theme}>
+                <Button
+                  title="Refresh Position"
+                  onPress={refresh}
+                />
+              </ThemeProvider>
+            </View>
+          </ScrollView>
+        </SafeAreaView>
+      </>
     );
 }
 
