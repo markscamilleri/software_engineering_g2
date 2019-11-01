@@ -8,6 +8,7 @@ cache:
     - ~/.npm
     - .jest
 before_install:
+  - cd frontend
   - npm install -g npm@latest
 stages:
   - build
@@ -20,15 +21,18 @@ jobs:
   include:
     - stage: test
       script:
+        - cd frontend
         - npm ci
         - npx jest --ci
     - stage: deploy staging
       script:
+        - cd frontend
         - npm ci
         - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
         - npx expo publish --non-interactive --release-channel staging
     - stage: deploy production
       script:
+        - cd frontend
         - npm ci
         - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
         - npx expo publish --non-interactive --release-channel production
