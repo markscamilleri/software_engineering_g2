@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView} from 'react-native';
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE, Marker  }  from 'react-native-maps';
 import { Toolbar } from 'react-native-material-ui';
+//import DeviceInfo, {getDeviceId} from 'react-native-device-info';
 
 const theme = {
   Button: {
@@ -21,7 +22,17 @@ export default function App() {
 	const [location, setLocation] = useState({location: '', errorMessage: null});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState({latitude: 0, longitude: 0, title: '', subtitle: ''});
-	
+
+	//Stuff commented out below was me seeing how I could get the device ID
+	// const [deviceID, setDeviceID] = useState('');
+
+	// const getdeviceId = () => {
+	// 	//Getting the Unique Id from here
+	// 	let id = DeviceInfo.getUniqueID();
+	// 	this.setState({ deviceId: id});
+	// };
+
+
 	useEffect(() => {
 		if (Platform.OS === 'android' && !Constants.isDevice) {
 			const newLocationObj = {location: location.location, 
@@ -39,7 +50,7 @@ export default function App() {
 			if (status === 'granted') {
 				try {
 					let locationdata = await Location.getCurrentPositionAsync({});
-					
+
 					let lat = JSON.parse(locationdata.coords.latitude);
 					let longg = JSON.parse(locationdata.coords.longitude);
 				
@@ -54,8 +65,8 @@ export default function App() {
 					
 				
 				} catch (error) {
-					console.log('Permission to turm on phone location was denied: ' + error.message);
-					const newLocationObj = {location: '', errorMessage: 'Permission to turm on phone location was denied: ' + error.message };
+					console.log('Permission to turn on phone location was denied: ' + error.message);
+					const newLocationObj = {location: '', errorMessage: 'Permission to turn on phone location was denied: ' + error.message };
 					setLocation(newLocationObj);
 				}
 			} else {
@@ -99,8 +110,8 @@ export default function App() {
 					
 				
 				} catch (error) {
-					console.log('Permission to turm on phone location was denied: ' + error.message);
-					const newLocationObj = {location: '', errorMessage: 'Permission to turm on phone location was denied: ' + error.message };
+					console.log('Permission to turn on phone location was denied: ' + error.message);
+					const newLocationObj = {location: '', errorMessage: 'Permission to turn on phone location was denied: ' + error.message };
 					setLocation(newLocationObj);
 				}
 			} else {
@@ -116,10 +127,10 @@ export default function App() {
 		}
 		
 	};
-	
+
 	let text = 'Waiting..';
-	let longtude = 0;
-	let lattude = 0;
+	let longitude = 0;
+	let latitude = 0;
     if (location.errorMessage) {
       text = location.errorMessage;
     } else if (location.location) {
@@ -169,10 +180,44 @@ export default function App() {
 							/>
 						</ThemeProvider>
 					</View>
+					<View style={styles.button}>
+						<ThemeProvider theme={theme}>
+							<Button
+								title= "Send Location Data"
+								onPress={fetchRequest}
+							/>
+						</ThemeProvider>
+					</View>
 				</ScrollView>
 			</SafeAreaView>
 		</>
 	);
+}
+
+const fetchRequest = async () => {
+
+	let locationData = await Location.getCurrentPositionAsync({});
+
+	let latitude = JSON.parse(locationData.coords.latitude);
+	let longitude = JSON.parse(locationData.coords.longitude);
+
+	try{
+		return await fetch('http://webhook.site/a04ce788-466b-4683-b5dd-a3c17372c150',{
+			method: 'POST',
+			body: JSON.stringify({
+				Device: 'id',
+				latitude: latitude,
+				longitude: longitude
+			}),
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/json'
+			},
+		});
+	}catch (e) {
+		console.log(e)
+	}
+
 }
 
 const styles = StyleSheet.create({
