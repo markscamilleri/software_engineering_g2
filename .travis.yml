@@ -14,10 +14,10 @@ before_install:
 stages:
 - build
 - test
-- name: deploy staging
-  if: branch = develop
-- name: deploy production
-  if: branch = master
+#- name: deploy staging
+#  if: branch = develop
+#- name: deploy production
+#  if: branch = master
 jobs:
   include:
   - stage: test
@@ -25,15 +25,15 @@ jobs:
     - cd frontend
     - npm ci
     - npx jest --ci --passWithNoTests
-  - stage: deploy staging
-    script:
-    - cd frontend
-    - npm ci
-    - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
-    - npx expo publish --non-interactive --release-channel staging
-  - stage: deploy production
-    script:
-    - cd frontend
-    - npm ci
-    - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
-    - npx expo publish --non-interactive --release-channel production
+#  - stage: deploy staging
+#    script:
+#    - cd frontend
+#    - npm ci
+#    - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
+#    - npx expo publish --non-interactive --release-channel staging
+#  - stage: deploy production
+#    script:
+#    - cd frontend
+#    - npm ci
+#    - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
+#    - npx expo publish --non-interactive --release-channel production
