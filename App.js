@@ -223,8 +223,6 @@ const fetchRequest = async () => {
     let latitude = JSON.parse(locationData.coords.latitude);
     let longitude = JSON.parse(locationData.coords.longitude);
 
-
-    try {
 	try{
 		return await fetch(`${BACKEND_ENDPOINT}/getlocation`,{
 			method: 'POST',
