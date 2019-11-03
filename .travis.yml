@@ -1,38 +1,39 @@
 language: node_js
 node_js:
-  - 10.17.0
+- 10.17.0
 env:
-  - secure: "ToR7pijTFbsCFqZBcyMa9cDzrp4TwkhnzdyVlOSBLLeS9K213Lh3eVGbkYI4oOFZHUrQyzR6gYKHcAJkSM/jh8cZVEal37IV6M2SZvD/lF8A3oiJJYEg/GDMz5nuDPxQhMODp5OoCtXrjvM5ecHxh102WFHd0DeYgswsDIkoBDmmMcjyk4LSOFkUpHiXt0PV06kk2lE/jt5hJ9/MTguIVqi7iwKm9ZnioVWxpLHQ2JFJwOi5NpQqJIk8FN3lfVHd7o7k67mMILMXjUqIASRSFxe254zAYqF8oLoeRLINria80eow94Fal0IQernAddAvrKF9WNCE1UjcJXUQAO4dTzXfGGDpltLiKwm9j07j+OJOipbdq11BhkEio5FXaQeJ6PrDLeGRuhedqdj9OSj+fheZyQ7tyidVDQBaqo0H7vHc5L7yBiV1quk7Fgz20nd+368fJuhpWQs6jUqQ9kVBUDk0qu0YEcbgUFXmkTJkd9SUiDQuSFFp8r2y391h6A2nQ/44yYJzIdo0f33kvj4c3nfyQ00GTGnUhZ1Ozpl9389EZ/p0AeGVr3VJLJYv7Y1Oym+Y7+dNA1+33xkVgKrUuQVKW0paDO5dzkkc0GNA4OAZVPg+TMjTuABAOv4MWQoqXgQCenwG53L6o835sAcQQ9uRJMrh78EdnrCFN5d96io="
+  matrix:
+    secure: gSb+5hzjOEsBsrJRIb8x2pQF/Y/yB4b1d1OGW2BkXCLECwFfk/UCCpE1LIWLeK2XJpuF9H/yewZFc2lrgYsM1NI1Wn33BcOFWuvCq3uyLFlpdiB5jKNXvLYA6xmudwbvWPh9AjubN2IJplatF2EAMyf1JjgOX+M3lEWOGqiaOYMLjP+8PphInhbscMDWJb2ni601Q+iBDtEkhwLPWVIzz0gY3EyXta0YbtbiWvjhsFE9NYf2MuB/s9xb3UK09jq2bBtD4M80+ppzYUTmq8s3GzTPqpPm0vww67xkMUPA4tkgygFNwYYETeytLL9bdyDY8PitJfGn26qoZTPSy6z2TOJEmEVhf077Tk25FrJcIjFltQ3Nne/NYczTwFqUrrXNoLPgplm4zMy3LZZKweL11juMmbXmyTZ3fywGqJ8RwKPEKO3Qeuv0xtsPiAc1qmh6bC5Y7E65G5rDj77ei+7BFc12nSjqBCa0rLx1iC47fzeGTwWKCIb6A6tJbr6mRVkRbcP7M9rQ/UMWYskrFLgGbvrgHX0Hn28uHS76CNBAwvh0eQk3iG2iOIZ9GVC32Lh66daLL9noDhTiDGUdmp6q7ofG8jtNDPvnqF6CXgUBgpE8GGDd6paTmHT4rIiKLUI42sQwOzfIhwt7exckspqyZvvZbnkYg/Yk7bR8vTHLZ0M=
 cache:
   directories:
-    - ~/.npm
-    - .jest
+  - "~/.npm"
+  - ".jest"
 before_install:
-  - npm install -g npm@latest
-  - npm install -g expo-cli
+- npm install -g npm@latest
+- npm install -g expo-cli
 stages:
-  - build
-  - test
-  - name: deploy staging
-    if: branch = develop
-  - name: deploy production
-    if: branch = master # Can also change this to tags if need be
+- build
+- test
+- name: deploy staging
+  if: branch = develop
+- name: deploy production
+  if: branch = master
 jobs:
   include:
-    - stage: test
-      script:
-        - cd frontend
-        - npm ci
-        - npx jest --ci --passWithNoTests
-    - stage: deploy staging
-      script:
-        - cd frontend
-        - npm ci
-        - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
-        - npx expo publish --non-interactive --release-channel staging
-    - stage: deploy production
-      script:
-        - cd frontend
-        - npm ci
-        - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
-        - npx expo publish --non-interactive --release-channel production
+  - stage: test
+    script:
+    - cd frontend
+    - npm ci
+    - npx jest --ci --passWithNoTests
+  - stage: deploy staging
+    script:
+    - cd frontend
+    - npm ci
+    - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
+    - npx expo publish --non-interactive --release-channel staging
+  - stage: deploy production
+    script:
+    - cd frontend
+    - npm ci
+    - npx expo login -u $EXPO_USERNAME -p $EXPO_PASSWORD
+    - npx expo publish --non-interactive --release-channel production
