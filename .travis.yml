@@ -9,6 +9,7 @@ cache:
     - .jest
 before_install:
   - npm install -g npm@latest
+  - npm install -g expo-cli
 stages:
   - build
   - test
