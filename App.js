@@ -6,7 +6,6 @@ import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE, Marker  }  from 'react-native-maps';
 import { Toolbar } from 'react-native-material-ui';
-//import DeviceInfo, {getDeviceId} from 'react-native-device-info';
 
 const theme = {
   Button: {
@@ -22,15 +21,6 @@ export default function App() {
 	const [location, setLocation] = useState({location: '', errorMessage: null});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState({latitude: 0, longitude: 0, title: '', subtitle: ''});
-
-	//Stuff commented out below was me seeing how I could get the device ID
-	// const [deviceID, setDeviceID] = useState('');
-
-	// const getdeviceId = () => {
-	// 	//Getting the Unique Id from here
-	// 	let id = DeviceInfo.getUniqueID();
-	// 	this.setState({ deviceId: id});
-	// };
 
 
 	useEffect(() => {
@@ -197,15 +187,15 @@ export default function App() {
 const fetchRequest = async () => {
 
 	let locationData = await Location.getCurrentPositionAsync({});
-
 	let latitude = JSON.parse(locationData.coords.latitude);
 	let longitude = JSON.parse(locationData.coords.longitude);
+
 
 	try{
 		return await fetch('http://webhook.site/a04ce788-466b-4683-b5dd-a3c17372c150',{
 			method: 'POST',
 			body: JSON.stringify({
-				Device: 'id',
+				Device: 'token',
 				latitude: latitude,
 				longitude: longitude
 			}),
