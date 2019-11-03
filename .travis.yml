@@ -8,7 +8,6 @@ cache:
     - ~/.npm
     - .jest
 before_install:
-  - cd frontend
   - npm install -g npm@latest
 stages:
   - build
