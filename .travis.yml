@@ -22,7 +22,7 @@ jobs:
       script:
         - cd frontend
         - npm ci
-        - npx jest --ci
+        - npx jest --ci --passWithNoTests
     - stage: deploy staging
       script:
         - cd frontend
