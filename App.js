@@ -1,11 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView} from 'react-native';
+import { AsyncStorage, StyleSheet, Text, View, Platform, SafeAreaView, ScrollView} from 'react-native';
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE, Marker  }  from 'react-native-maps';
 import { Toolbar } from 'react-native-material-ui';
+
+import UUID from 'react-native-uuid';
+//import DeviceInfo, {getDeviceId} from 'react-native-device-info';
 
 const theme = {
   Button: {
@@ -17,7 +20,7 @@ const theme = {
 };
 
 export default function App() {
-	
+
 	const [location, setLocation] = useState({location: '', errorMessage: null});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState({latitude: 0, longitude: 0, title: '', subtitle: ''});
@@ -25,16 +28,16 @@ export default function App() {
 
 	useEffect(() => {
 		if (Platform.OS === 'android' && !Constants.isDevice) {
-			const newLocationObj = {location: location.location, 
+			const newLocationObj = {location: location.location,
 			errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!' };
 			setLocation(newLocationObj);
 		} else {
 			getLocationAsync();
 		}
 	}, []);
-	
+
 	const getLocationAsync = async () => {
-		
+
 		try {
 			let { status } = await Permissions.askAsync(Permissions.LOCATION);
 			if (status === 'granted') {
@@ -43,17 +46,17 @@ export default function App() {
 
 					let lat = JSON.parse(locationdata.coords.latitude);
 					let longg = JSON.parse(locationdata.coords.longitude);
-				
+
 					const newLocationObj = {location: locationdata, errorMessage: location.errorMessage };
 					setLocation(newLocationObj);
-					
+
 					const newRegionObj = {latitude: lat, longitude: longg, latitudeDelta: 0.004, longitudeDelta: 0.01};
 					setRegion(newRegionObj);
-					
+
 					const newMarkerObj = {latitude: lat, longitude: longg, title: 'Your Location', subtitle: 'Hello'};
 					setMark(newMarkerObj);
-					
-				
+
+
 				} catch (error) {
 					console.log('Permission to turn on phone location was denied: ' + error.message);
 					const newLocationObj = {location: '', errorMessage: 'Permission to turn on phone location was denied: ' + error.message };
@@ -64,16 +67,16 @@ export default function App() {
 				const newLocationObj = {location: '', errorMessage: 'Permission to access location was denied' };
 				setLocation(newLocationObj);
 			}
-			
+
 		} catch (error) {
 			console.log('There has been a problem with location: ' + error.message);
 			const newLocationObj = {location: location.location, errorMessage: 'Permission to access location was denied' };
 			setLocation(newLocationObj);
 		}
-		
+
 	};
-	
-	const refresh = async () => { 
+
+	const refresh = async () => {
 		const newLocationObj = {location: '', errorMessage: null };
 		setLocation(newLocationObj);
 		const newRegionObj = {latitude: 0, longitude: 0, latitudeDelta: 0.004, longitudeDelta: 0.01};
@@ -85,20 +88,20 @@ export default function App() {
 			if (status === 'granted') {
 				try {
 					let locationdata = await Location.getCurrentPositionAsync({});
-					
+
 					let lat = JSON.parse(locationdata.coords.latitude);
 					let longg = JSON.parse(locationdata.coords.longitude);
-				
+
 					const newLocationObj = {location: locationdata, errorMessage: location.errorMessage };
 					setLocation(newLocationObj);
-					
+
 					const newRegionObj = {latitude: lat, longitude: longg, latitudeDelta: 0.004, longitudeDelta: 0.01};
 					setRegion(newRegionObj);
-					
+
 					const newMarkerObj = {latitude: lat, longitude: longg, title: 'Your Location', subtitle: 'Hello'};
 					setMark(newMarkerObj);
-					
-				
+
+
 				} catch (error) {
 					console.log('Permission to turn on phone location was denied: ' + error.message);
 					const newLocationObj = {location: '', errorMessage: 'Permission to turn on phone location was denied: ' + error.message };
@@ -109,13 +112,13 @@ export default function App() {
 				const newLocationObj = {location: '', errorMessage: 'Permission to access location was denied' };
 				setLocation(newLocationObj);
 			}
-			
+
 		} catch (error) {
 			console.log('There has been a problem with location: ' + error.message);
 			const newLocationObj = {location: location.location, errorMessage: 'Permission to access location was denied' };
 			setLocation(newLocationObj);
 		}
-		
+
 	};
 
 	let text = 'Waiting..';
@@ -126,7 +129,7 @@ export default function App() {
     } else if (location.location) {
       text = JSON.stringify(location.location);
     }
-		
+
 	return (
 		<>
 			<SafeAreaView style={styles.container}>
@@ -161,7 +164,7 @@ export default function App() {
 								coordinate={markers}
 							/>
 						</MapView>
-					</View> 
+					</View>
 					<View style={styles.button}>
 						<ThemeProvider theme={theme}>
 							<Button
@@ -184,6 +187,19 @@ export default function App() {
 	);
 }
 
+const getDeviceID = async () => {
+	const deviceIDKey = 'DEVICE_ID';
+	let deviceID = await AsyncStorage.getItem(deviceIDKey);
+
+	if (deviceID == null){
+		deviceID = UUID.v1();
+
+		await AsyncStorage.setItem(deviceIDKey, deviceID);
+	}
+
+	return deviceID;
+};
+
 const fetchRequest = async () => {
 
 	let locationData = await Location.getCurrentPositionAsync({});
@@ -196,6 +212,7 @@ const fetchRequest = async () => {
 			method: 'POST',
 			body: JSON.stringify({
 				Device: 'token',
+				deviceID: await getDeviceID(),
 				latitude: latitude,
 				longitude: longitude
 			}),
@@ -207,8 +224,7 @@ const fetchRequest = async () => {
 	}catch (e) {
 		console.log(e)
 	}
-
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -216,7 +232,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-  }, 
+  },
   title: {
     marginTop: Constants.statusBarHeight + 20,
     fontSize: 18,
