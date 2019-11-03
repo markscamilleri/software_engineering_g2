@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView} from 'react-native';
+import { AsyncStorage, StyleSheet, Text, View, Platform, SafeAreaView, ScrollView} from 'react-native';
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE, Marker  }  from 'react-native-maps';
 import { Toolbar } from 'react-native-material-ui';
+import UUID from 'react-native-uuid';
 //import DeviceInfo, {getDeviceId} from 'react-native-device-info';
 
 const theme = {
@@ -194,6 +195,19 @@ export default function App() {
 	);
 }
 
+const getDeviceID = async () => {
+	const deviceIDKey = 'DEVICE_ID';
+	let deviceID = await AsyncStorage.getItem(deviceIDKey);
+
+	if (deviceID == null){
+		deviceID = UUID.v1();
+
+		await AsyncStorage.setItem(deviceIDKey, deviceID);
+	}
+
+	return deviceID;
+};
+
 const fetchRequest = async () => {
 
 	let locationData = await Location.getCurrentPositionAsync({});
@@ -205,7 +219,7 @@ const fetchRequest = async () => {
 		return await fetch('http://webhook.site/a04ce788-466b-4683-b5dd-a3c17372c150',{
 			method: 'POST',
 			body: JSON.stringify({
-				Device: 'id',
+				deviceID: await getDeviceID(),
 				latitude: latitude,
 				longitude: longitude
 			}),
@@ -217,8 +231,7 @@ const fetchRequest = async () => {
 	}catch (e) {
 		console.log(e)
 	}
-
-}
+};
 
 const styles = StyleSheet.create({
   container: {
