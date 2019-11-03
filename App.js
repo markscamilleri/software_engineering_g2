@@ -10,6 +10,8 @@ import { Toolbar } from 'react-native-material-ui';
 import UUID from 'react-native-uuid';
 //import DeviceInfo, {getDeviceId} from 'react-native-device-info';
 
+const BACKEND_ENDPOINT = "http://35.189.64.153";
+
 const theme = {
   Button: {
     raised: true,
@@ -208,7 +210,7 @@ const fetchRequest = async () => {
 
 
 	try{
-		return await fetch('http://webhook.site/a04ce788-466b-4683-b5dd-a3c17372c150',{
+		return await fetch(`${BACKEND_ENDPOINT}/getlocation`,{
 			method: 'POST',
 			body: JSON.stringify({
 				deviceID: await getDeviceID(),
