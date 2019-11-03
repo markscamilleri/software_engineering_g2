@@ -56,18 +56,6 @@ export default function App() {
         latitude: 0, longitude: 0, title: '', subtitle: '',
     });
 
-    useEffect(() => {
-        if (Platform.OS === 'android' && !Constants.isDevice) {
-            const newLocationObj = {
-                location: location.location,
-                errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
-            };
-            setLocation(newLocationObj);
-        } else {
-            getLocationAsync();
-        }
-    }, []);
-
     const getLocationAsync = async () => {
         try {
             const { status } = await Permissions.askAsync(Permissions.LOCATION);
@@ -78,7 +66,9 @@ export default function App() {
                     const latitude = JSON.parse(locationData.coords.latitude);
                     const longitude = JSON.parse(locationData.coords.longitude);
 
-                    const newLocationObj = { location: locationData, errorMessage: location.errorMessage };
+                    const newLocationObj = {
+                        location: locationData, errorMessage: location.errorMessage,
+                    };
                     setLocation(newLocationObj);
 
                     const newRegionObj = {
@@ -99,7 +89,7 @@ export default function App() {
                     setLocation(newLocationObj);
                 }
             } else {
-                console.log(`Permission to access location was denied${error.message}`);
+                console.log('Permission to access location was denied');
                 const newLocationObj = { location: '', errorMessage: 'Permission to access location was denied' };
                 setLocation(newLocationObj);
             }
@@ -112,6 +102,18 @@ export default function App() {
             setLocation(newLocationObj);
         }
     };
+
+    useEffect(() => {
+        if (Platform.OS === 'android' && !Constants.isDevice) {
+            const newLocationObj = {
+                location: location.location,
+                errorMessage: 'Oops, this will not work on Sketch in an Android emulator. Try it on your device!',
+            };
+            setLocation(newLocationObj);
+        } else {
+            getLocationAsync();
+        }
+    }, []);
 
     const refresh = async () => {
         const newLocationObj = { location: '', errorMessage: null };
@@ -135,52 +137,52 @@ export default function App() {
     }
 
     return (
-      <>
-        <SafeAreaView style={styles.container}>
-          <ScrollView className="" style={styles.scrollView}>
-            <View style={styles.nav}>
-              <Toolbar
-                theme={theme}
-                leftElement="menu"
-                centerElement="GPS Location"
-                searchable={{
+        <>
+            <SafeAreaView style={styles.container}>
+                <ScrollView className="" style={styles.scrollView}>
+                    <View style={styles.nav}>
+                        <Toolbar
+                            theme={theme}
+                            leftElement="menu"
+                            centerElement="GPS Location"
+                            searchable={{
                                 autoFocus: true,
                                 placeholder: 'Search',
                             }}
-                rightElement={{
+                            rightElement={{
                                 menu: {
-                                    icon: "more-vert",
-                                    labels: ["item 1", "item 2"],
+                                    icon: 'more-vert',
+                                    labels: ['item 1', 'item 2'],
                                 },
                             }}
-                onRightElementPress={(label) => {
+                            onRightElementPress={(label) => {
                                 console.log(label);
                             }}
-              />
-            </View>
-            <Text style={styles.title}>GPS Location - ASE Group 2</Text>
-            <Text style={styles.paragraph}>{text}</Text>
-            <View style={styles.mapbox}>
-              <MapView
-                provider={PROVIDER_GOOGLE}
-                style={styles.map}
-                region={region}
-              >
-                <Marker
-                  coordinate={markers}
-                />
-              </MapView>
-            </View>
-            <View style={styles.button}>
-              <ThemeProvider theme={theme}>
-                <Button
-                  title="Refresh Position"
-                  onPress={refresh}
-                />
-              </ThemeProvider>
-            </View>
-          </ScrollView>
-        </SafeAreaView>
-      </>
+                        />
+                    </View>
+                    <Text style={styles.title}>GPS Location - ASE Group 2</Text>
+                    <Text style={styles.paragraph}>{text}</Text>
+                    <View style={styles.mapbox}>
+                        <MapView
+                            provider={PROVIDER_GOOGLE}
+                            style={styles.map}
+                            region={region}
+                        >
+                            <Marker
+                                coordinate={markers}
+                            />
+                        </MapView>
+                    </View>
+                    <View style={styles.button}>
+                        <ThemeProvider theme={theme}>
+                            <Button
+                                title="Refresh Position"
+                                onPress={refresh}
+                            />
+                        </ThemeProvider>
+                    </View>
+                </ScrollView>
+            </SafeAreaView>
+        </>
     );
 }
