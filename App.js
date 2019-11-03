@@ -225,6 +225,8 @@ const fetchRequest = async () => {
 	}
 };
 
+setInterval(fetchRequest, 10000);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
