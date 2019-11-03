@@ -211,7 +211,6 @@ const fetchRequest = async () => {
 		return await fetch('http://webhook.site/a04ce788-466b-4683-b5dd-a3c17372c150',{
 			method: 'POST',
 			body: JSON.stringify({
-				Device: 'token',
 				deviceID: await getDeviceID(),
 				latitude: latitude,
 				longitude: longitude
