@@ -223,22 +223,22 @@ const fetchRequest = async () => {
     let latitude = JSON.parse(locationData.coords.latitude);
     let longitude = JSON.parse(locationData.coords.longitude);
 
-	try{
-		return await fetch(`${BACKEND_ENDPOINT}/getlocation`,{
-			method: 'POST',
-			body: JSON.stringify({
-				deviceID: await getDeviceID(),
-				latitude: latitude,
-				longitude: longitude
-			}),
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/json'
-			},
-		});
-	}catch (e) {
-		console.log(e)
-	}
+    try{
+        return await fetch(`${BACKEND_ENDPOINT}/getlocation`,{
+            method: 'POST',
+            body: JSON.stringify({
+                deviceID: await getDeviceID(),
+                latitude: latitude,
+                longitude: longitude
+            }),
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+        });
+    }catch (e) {
+        console.log(e)
+    }
 };
 
 
