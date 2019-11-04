@@ -1,0 +1,33 @@
+---
+parserOptions:
+  sourceType: module
+  ecmaFeatures:
+    jsx: true
+
+extends: airbnb
+
+env:
+  amd: true
+  browser: true
+  es2020: true
+  node: true
+
+# http://eslint.org/docs/rules/
+
+# React Specific
+rules:
+  react/jsx-filename-extension:
+    - error
+    - extensions:
+        - .jsx
+        - .js
+  react/jsx-indent:
+    - error
+    - 4
+  react/jsx-indent-props:
+    - error
+    - 4
+  indent:
+    - error
+    - 4
+  no-console: off
