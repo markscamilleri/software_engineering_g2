@@ -4,7 +4,7 @@ import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
-import MapView, { PROVIDER_GOOGLE, Marker  }  from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker, UrlTile }  from 'react-native-maps';
 import { Toolbar } from 'react-native-material-ui';
 
 const theme = {
@@ -124,6 +124,7 @@ const MapScreen = ({navigation}) => {
 	
 	//Location.watchPositionAsync({accuracy: 4, timeInterval: 10000}, hello());*/
 	
+	const tile = "http://c.tile.openstreetmap.org/{z}/{x}/{y}.png";
 	
 	let text = 'Waiting..';
 	let longtude = 0;
@@ -169,9 +170,9 @@ const MapScreen = ({navigation}) => {
 					<Text style={styles.paragraph}>{text}</Text>
 					<View style={styles.mapbox}>
 						<MapView
-						   provider={PROVIDER_GOOGLE}
-						   style={styles.map}
-						   region={region}
+							provider={(Platform.OS === 'android') ? PROVIDER_GOOGLE : null}
+							style={styles.map}
+							region={region}
 						 >
 							 <Marker
 								coordinate={markers}
