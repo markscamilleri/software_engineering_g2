@@ -3,47 +3,78 @@ import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView } from 'reac
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import { Toolbar } from 'react-native-material-ui';
+import * as Font from 'expo-font';
+import { AppLoading } from 'expo';
 
 const HomeScreen = ({navigation}) => {
-	return (
+	
+	const [isFontLoaded, setFonts] = useState(false);
+	
+	/*useEffect(() => {
+		getFonts();
+		setFonts(true);
+	}, []);*/
+	
+	const getFonts = async () => { 
+		
+		await Font.loadAsync({
+			'Roboto' : require('../assets/fonts/farah.ttf')
+		});
+		
+	}
+	
+	return !isFontLoaded ? ( <AppLoading
+				  startAsync={this.getFonts}
+				  onFinish={() => setFonts(true)}
+				  onError={console.warn}
+			/>
+		) : ( 
+		
 		<>	
+
 			<View style={styles.nav}>
-				<Toolbar
-					theme={theme}
-					leftElement="menu"
-					centerElement="ASE Project"
-					searchable={{
-						autoFocus: true,
-						placeholder: 'Search',
-					}}
-					rightElement={{
-						menu: {
-							icon: "more-vert",
-							labels: ["Home", "View Location"]
-						}
-					}}
-					onRightElementPress={ 
-						(label) => { 
-							console.log(label);
-							if(label.index == 1) {
-								navigation.navigate('Map');
-							} else if(label.index == 0) {
-								navigation.navigate('Home');
+					<Toolbar
+						theme={theme}
+						leftElement="menu"
+						centerElement="ASE Project"
+						searchable={{
+							autoFocus: true,
+							placeholder: 'Search',
+						}}
+						rightElement={{
+							menu: {
+								icon: "more-vert",
+								labels: ["Home", "View Location"]
+							}
+						}}
+						onRightElementPress={ 
+							(label) => { 
+								console.log(label);
+								if(label.index == 1) {
+									navigation.navigate('Map');
+								} else if(label.index == 0) {
+									navigation.navigate('Home');
+								}
 							}
 						}
-					}
-				/>
-			</View>
-			<View style={styles.button}>
-				<ThemeProvider theme={theme}>
-					<Button
-						title="Go To Map"
-						onPress={()=>{{navigation.navigate('Map')}}}
 					/>
-				</ThemeProvider>
-			</View>
+				</View>
+				
+			
 		</>
-	);
+		
+		)
+	
+	/*<View style={styles.button}>
+						<Text style={{fontFamily:'System'}}>
+					<ThemeProvider theme={theme}>
+						<Button
+							title="Go To Map"
+							onPress={()=>{{navigation.navigate('Map')}}}
+						/>
+					</ThemeProvider>
+					</Text>
+				</View>*/
 }
 
 HomeScreen.navigationOptions = {
@@ -56,7 +87,8 @@ const theme = {
     raised: true,
 	titleStyle: {
 		color: 'white',
-	}
+	},
+	fontFamily: 'System',
   },
 };
 
@@ -66,19 +98,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+	fontFamily: 'System',
   }, 
   title: {
     marginTop: Constants.statusBarHeight + 20,
     fontSize: 18,
 	textAlign: 'center',
+	fontFamily: 'System',
   },
   nav: {
     marginTop: Constants.statusBarHeight,
+	fontFamily: 'System',
   },
   paragraph: {
     margin: 24,
     fontSize: 14,
 	textAlign: 'center',
+	fontFamily: 'System',
   },
   map: {
    height: 200,
@@ -86,6 +122,7 @@ const styles = StyleSheet.create({
   },
   button: {
    margin: 30,
+   fontFamily: 'System',
   },
 });
 
