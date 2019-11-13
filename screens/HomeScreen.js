@@ -1,69 +1,44 @@
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView, ViewPropTypes } from 'react-native';
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import { Toolbar } from 'react-native-material-ui';
 import * as Font from 'expo-font';
 import { AppLoading } from 'expo';
 
+const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Farah');
+
 const HomeScreen = ({navigation}) => {
 	
-	const [isFontLoaded, setFonts] = useState(false);
+	const [isFontLoaded, setFonts] = useState(true);
 	
-	/*useEffect(() => {
-		getFonts();
-		setFonts(true);
-	}, []);*/
 	
-	const getFonts = async () => { 
+	if(isFontLoaded) {
+		return ( 
 		
-		await Font.loadAsync({
-			'Roboto' : require('../assets/fonts/farah.ttf')
-		});
+			<>
+				<View style={styles.nav}>
+						<Toolbar
+							theme={theme}
+							leftElement=<Text style={{fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Farah'}}>Menu</Text>
+							centerElement=<Text style={{fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Farah'}}>ASE Project</Text>
+							searchable={{
+								autoFocus: true,
+								placeholder: <Text style={{fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Farah'}}>Searchable</Text>,
+							}}
+							
+						/>
+				</View>
+			</>
+		)
+		
+	} else {
+		return ( 
+			<View><Text style={{fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Farah'}}>Hello World</Text></View>
+		)
 		
 	}
-	
-	return !isFontLoaded ? ( <AppLoading
-				  startAsync={this.getFonts}
-				  onFinish={() => setFonts(true)}
-				  onError={console.warn}
-			/>
-		) : ( 
-		
-		<>	
 
-			<View style={styles.nav}>
-					<Toolbar
-						theme={theme}
-						leftElement="menu"
-						centerElement="ASE Project"
-						searchable={{
-							autoFocus: true,
-							placeholder: 'Search',
-						}}
-						rightElement={{
-							menu: {
-								icon: "more-vert",
-								labels: ["Home", "View Location"]
-							}
-						}}
-						onRightElementPress={ 
-							(label) => { 
-								console.log(label);
-								if(label.index == 1) {
-									navigation.navigate('Map');
-								} else if(label.index == 0) {
-									navigation.navigate('Home');
-								}
-							}
-						}
-					/>
-				</View>
-				
-			
-		</>
-		
-		)
 	
 	/*<View style={styles.button}>
 						<Text style={{fontFamily:'System'}}>
@@ -87,34 +62,42 @@ const theme = {
     raised: true,
 	titleStyle: {
 		color: 'white',
+		fontFamily: systemFonts,
 	},
-	fontFamily: 'System',
+	fontFamily: systemFonts,
   },
+  fontFamily: systemFonts,
 };
 
 const styles = StyleSheet.create({
+	
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
-	fontFamily: 'System',
+	fontFamily: systemFonts,
   }, 
+ /* tool: {
+	  leftElement: {
+		fontFamily: systemFonts,  
+	  }
+  },*/
   title: {
     marginTop: Constants.statusBarHeight + 20,
     fontSize: 18,
 	textAlign: 'center',
-	fontFamily: 'System',
+	fontFamily: systemFonts,
   },
   nav: {
     marginTop: Constants.statusBarHeight,
-	fontFamily: 'System',
+	fontFamily: systemFonts,
   },
   paragraph: {
     margin: 24,
     fontSize: 14,
 	textAlign: 'center',
-	fontFamily: 'System',
+	fontFamily: systemFonts,
   },
   map: {
    height: 200,
@@ -122,7 +105,7 @@ const styles = StyleSheet.create({
   },
   button: {
    margin: 30,
-   fontFamily: 'System',
+   fontFamily: systemFonts,
   },
 });
 
