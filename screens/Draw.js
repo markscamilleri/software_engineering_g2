@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, Platform, SafeAreaView, ScrollView, ViewPropTyp
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import { Toolbar, ThemeContext as TP, COLOR, getTheme } from 'react-native-material-ui';
-import { createDrawerNavigator, DrawerActions } from 'react-navigation-drawer';
 import * as Font from 'expo-font';
 import { AppLoading } from 'expo';
 
@@ -21,7 +20,7 @@ const uiTheme = {
 	fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Farah'
 };
 
-const HomeScreen = ({navigation}) => {
+const Draw = ({navigation}) => {
 	
 	const [isFontLoaded, setFonts] = useState(true);
 	
@@ -32,32 +31,7 @@ const HomeScreen = ({navigation}) => {
 			<>
 				<View style={styles.nav}>
 					<TP.Provider value={getTheme(uiTheme)}>
-						<Toolbar
-							leftElement="menu"
-							onLeftElementPress={
-								() => {
-									console.log("Hey");
-									navigation.navigate('Drawer');
-								}
-							}
-							centerElement="ASE Project"
-							searchable={{
-								autoFocus: true,
-								placeholder:'Search'
-							}}
-							rightElement={{
-								menu: {
-									icon: "menu",
-									labels: ["Home", "View Location"]
-								}
-							}}
-							onRightElementPress={ 
-								function click() { 
-									console.log("Heyy");
-									
-								}
-							}
-						/>
+						<Text>Hello World!</Text>
 					</TP.Provider>
 				</View>
 			</>
@@ -83,7 +57,7 @@ const HomeScreen = ({navigation}) => {
 				</View>*/
 }
 
-HomeScreen.navigationOptions = {
+Draw.navigationOptions = {
 	header: null,
 	
 };
@@ -140,4 +114,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default Draw;
