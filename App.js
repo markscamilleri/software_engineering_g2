@@ -1,16 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { View, Text, StyleSheet, Platform, Dimensions } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
-import {
-  createSwitchNavigator,
-  createAppContainer,
-} from 'react-navigation';
+import { createSwitchNavigator, createAppContainer} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
 import { Toolbar, ThemeContext as TP, COLOR, getTheme } from 'react-native-material-ui';
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
+import MapView, { PROVIDER_GOOGLE, Marker }  from 'react-native-maps';
 
 import HomeScreen from './screens/HomeScreen.js';
 import MapScreen from './screens/MapScreen.js';
@@ -65,8 +63,8 @@ const styles = StyleSheet.create({
 	fontFamily: systemFonts,
   },
   map: {
-   height: 200,
-   width: 360,
+	height: 100,
+	width: 100,
   },
   button: {
    margin: 30,
@@ -97,18 +95,54 @@ const WelcomeScreen = ({navigation}) => {
     );
 }
 
+
+
 const DashboardScreen = ({navigation}) => {
+	
+	
 	return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>DashboardScreen</Text>
+        <Text>DashboardScreen1</Text>
       </View>
     );
 }
 
 const Feed = ({navigation}) => {
+	const [location, setLocation] = useState({location: '', errorMessage: null});
+	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+	const [markers, setMark] = useState({latitude: 0, longitude: 0, title: '', subtitle: ''});
+	
+	useEffect(() => {
+		
+	}, []);
+	
+	let text = 'Waiting..';
+	let longtude = 0;
+	let lattude = 0;
+    if (location.errorMessage) {
+      text = location.errorMessage;
+    } else if (location.location) {
+      text = JSON.stringify(location.location);
+    }
+	
+	var {height, width} = Dimensions.get('window');
+	
 	return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Feed</Text>
+        <Text>Feed {height} </Text>
+		<View>
+			<MapView
+				provider={PROVIDER_GOOGLE}
+				style={{height: height, width: width}}
+				region={region}
+			 >
+				 <Marker
+					coordinate={markers}
+					title="Equator"
+					onPress={() => console.log("HEY")}
+				/>
+			</MapView>
+		</View>
       </View>
     );
 }
@@ -133,7 +167,8 @@ const DashboardTabNavigator = createBottomTabNavigator(
 	{
 		Feed,
 		Profile,
-		Settings
+		Settings,
+		DashboardScreen
 	},
 	{
 		navigationOptions: ({ navigation }) => {
@@ -168,6 +203,9 @@ const DashboardStackNavigator = createStackNavigator(
 const AppDrawerNavigator = createDrawerNavigator({
   Dashboard: {
     screen: DashboardStackNavigator
+  },
+  DashboardHome: {
+    screen: DashboardScreen
   }
 });
 
