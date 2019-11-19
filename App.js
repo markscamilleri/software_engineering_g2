@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { createSwitchNavigator, createAppContainer} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -164,10 +164,37 @@ const Feed = ({navigation}) => {
 }
 
 const Settings = ({navigation}) => {
+	
+	const [value, setValue] = useState(' ');
+	const [jsonData, setJsonData] = useState(0);
+	
+	
+	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
+	async function getLongLat() {
+		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
+		const myJson = await response.json();
+		setJsonData(JSON.stringify(myJson));
+		console.log(JSON.stringify(myJson));
+	}
+	
 	return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
 		<StatusBar barStyle="light-content" />
         <Text>Settings</Text>
+		<Text>{jsonData}</Text>
+		<View style={styles.button}>
+		<TextInput 
+			style={{height: 40, borderWidth: 2, marginBottom: 10}}
+			onChangeText={text => setValue(text)}
+			defaultValue={value}
+		/>
+			<ThemeProvider theme={buttontheme}>
+				<Button
+				  title="Get LongLat"
+				  onPress={()=>{{getLongLat()}}}
+				/>
+			</ThemeProvider>
+		</View>
       </View>
     );
 }
@@ -183,9 +210,9 @@ const Profile = ({navigation}) => {
 
 const DashboardTabNavigator = createBottomTabNavigator(
 	{
-		Feed,
-		Profile,
 		Settings,
+		Profile,
+		Feed,
 	},
 	{
 		navigationOptions: ({ navigation }) => {
