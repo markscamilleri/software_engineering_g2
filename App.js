@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, StyleSheet, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { createSwitchNavigator, createAppContainer} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -13,19 +13,19 @@ import MapView, { PROVIDER_GOOGLE, Marker }  from 'react-native-maps';
 import HomeScreen from './screens/HomeScreen.js';
 import MapScreen from './screens/MapScreen.js';
 
+const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
+
 const uiTheme = {
     palette: {
-        primaryColor: COLOR.green500,
+        primaryColor: '#002366',
     },
     toolbar: {
         container: {
             height: 60,
         },
     },
-	fontFamily: Platform.OS === 'android' ? 'Roboto' : 'Farah'
+	fontFamily: systemFonts 
 };
-
-const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Farah');
 
 const buttontheme = {
   Button: {
@@ -74,9 +74,25 @@ const styles = StyleSheet.create({
 
 
 const WelcomeScreen = ({navigation}) => {
+	
+	const [load, setLoad] = useState(0.01);
+	
+	function loading() {
+		var time = load;
+		setLoad((time + 0.01) % 1);
+	}
+	var myVar = setTimeout(loading, 10);
+	
+	useEffect(() => {
+		return function cleanup() {
+		  clearTimeout(myVar);
+		};
+	});
+	
 	return (
 		<>
 			<View style={styles.nav}>
+			<StatusBar barStyle="dark-content" />
 				<TP.Provider value={getTheme(uiTheme)}>
 					<Toolbar
 						centerElement="ASE Project Group 2"
@@ -90,6 +106,7 @@ const WelcomeScreen = ({navigation}) => {
 						/>
 					</ThemeProvider>
 				</View>
+			<ProgressViewIOS progress={load} />
 			</View>
 		</>
     );
@@ -101,9 +118,20 @@ const DashboardScreen = ({navigation}) => {
 	
 	
 	return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>DashboardScreen1</Text>
-      </View>
+     <>
+		<View style={styles.nav}>
+		<StatusBar barStyle="dark-content" />
+			<TP.Provider value={getTheme(uiTheme)}>
+				<Toolbar
+					leftElement="menu"
+					centerElement="ASE Project Group 2"
+					onLeftElementPress={ 
+						() => navigation.openDrawer()
+					}
+				/>
+			</TP.Provider>
+		</View>
+	</>
     );
 }
 
@@ -112,24 +140,12 @@ const Feed = ({navigation}) => {
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState({latitude: 0, longitude: 0, title: '', subtitle: ''});
 	
-	useEffect(() => {
-		
-	}, []);
-	
-	let text = 'Waiting..';
-	let longtude = 0;
-	let lattude = 0;
-    if (location.errorMessage) {
-      text = location.errorMessage;
-    } else if (location.location) {
-      text = JSON.stringify(location.location);
-    }
-	
 	var {height, width} = Dimensions.get('window');
 	
 	return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
         <Text>Feed {height} </Text>
+		<StatusBar barStyle="light-content" />
 		<View>
 			<MapView
 				provider={PROVIDER_GOOGLE}
@@ -150,6 +166,7 @@ const Feed = ({navigation}) => {
 const Settings = ({navigation}) => {
 	return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+		<StatusBar barStyle="light-content" />
         <Text>Settings</Text>
       </View>
     );
@@ -158,6 +175,7 @@ const Settings = ({navigation}) => {
 const Profile = ({navigation}) => {
 	return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+		<StatusBar barStyle="light-content" />
         <Text>Profile</Text>
       </View>
     );
@@ -168,13 +186,15 @@ const DashboardTabNavigator = createBottomTabNavigator(
 		Feed,
 		Profile,
 		Settings,
-		DashboardScreen
 	},
 	{
 		navigationOptions: ({ navigation }) => {
 			const { routeName } = navigation.state.routes[navigation.state.index];
+			<StatusBar barStyle="light-content" />
 			return {
-				headerTitle: routeName
+				headerTitle: routeName,
+				headerStyle: { backgroundColor: '#002366' },
+				headerTitleStyle: { color: 'white' }
 			};
 		}
 	}
@@ -185,15 +205,18 @@ const DashboardStackNavigator = createStackNavigator(
     DashboardTabNavigator: DashboardTabNavigator
   },
   {
+	
     defaultNavigationOptions: ({ navigation }) => {
       return {
         headerLeft: (
+		<>
           <Icon
-            style={{ paddingLeft: 10 }}
+            style={{ paddingLeft: 10, backgroundColor: '#002366', color: 'white' }}
             onPress={() => navigation.openDrawer()}
             name="md-menu"
             size={30}
           />
+		</>
         )
       };
     }
@@ -201,10 +224,10 @@ const DashboardStackNavigator = createStackNavigator(
 );
 
 const AppDrawerNavigator = createDrawerNavigator({
-  Dashboard: {
+  Home: {
     screen: DashboardStackNavigator
   },
-  DashboardHome: {
+  DashboardScreen: {
     screen: DashboardScreen
   }
 });
