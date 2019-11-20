@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS } from 'react-native';
+import { View, ScrollView, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { createSwitchNavigator, createAppContainer} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -164,7 +164,9 @@ const Feed = ({navigation}) => {
 }
 
 const Settings = ({navigation}) => {
-	
+	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+	const [markers, setMark] = useState({latitude: 0, longitude: 0, title: '', subtitle: ''});
+
 	const [value, setValue] = useState(' ');
 	const [jsonData, setJsonData] = useState(0);
 	
@@ -173,12 +175,17 @@ const Settings = ({navigation}) => {
 	async function getLongLat() {
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
 		const myJson = await response.json();
-		setJsonData(JSON.stringify(myJson));
+		setJsonData(JSON.stringify(myJson.results[0].geometry.location));
+		setRegion({latitude: myJson.results[0].geometry.location.lat, longitude: myJson.results[0].geometry.location.lng, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+		setMark(
+			{latitude: myJson.results[0].geometry.location.lat, longitude: myJson.results[0].geometry.location.lng, title: '', subtitle: ''},
+		);
 		console.log(JSON.stringify(myJson));
 	}
-	
+	//https://stackoverflow.com/questions/40541095/render-multiple-marker-in-react-native-maps
+
 	return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <ScrollView>
 		<StatusBar barStyle="light-content" />
         <Text>Settings</Text>
 		<Text>{jsonData}</Text>
@@ -195,7 +202,20 @@ const Settings = ({navigation}) => {
 				/>
 			</ThemeProvider>
 		</View>
-      </View>
+	  <View>
+		  <MapView
+			  provider={PROVIDER_GOOGLE}
+			  style={{height: 200, width: 400}}
+			  region={region}
+		  >
+			  <Marker
+				  coordinate={markers}
+				  title="Equator"
+				  onPress={() => console.log("HEY")}
+			  />
+		  </MapView>
+	  </View>
+      </ScrollView>
     );
 }
 
