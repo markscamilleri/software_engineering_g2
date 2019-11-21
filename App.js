@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS } from 'react-native';
+import { View, ScrollView, TouchableOpacity, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS,
+ProgressBarAndroid } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { createSwitchNavigator, createAppContainer} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
@@ -106,7 +107,7 @@ const WelcomeScreen = ({navigation}) => {
 						/>
 					</ThemeProvider>
 				</View>
-			<ProgressViewIOS progress={load} />
+				{ Platform.OS === 'android' ? <ProgressBarAndroid styleAttr="Horizontal" progress={load} color="#0080ff"/> : <ProgressViewIOS progress={load} /> }
 			</View>
 		</>
     );
@@ -168,17 +169,60 @@ const Settings = ({navigation}) => {
 	const [value, setValue] = useState(' ');
 	const [jsonData, setJsonData] = useState(0);
 	
+	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+	const [markers, setMark] = useState([{
+			title: 'Hey',
+			latlng: {
+			  latitude: 0,
+			  longitude: 0
+			},
+		  },
+		  {
+			title: 'Hey2',
+			latlng: {
+			  latitude: 0.144282,
+			  longitude: 0.782743
+			},  
+		}]);
+	const [markers2, setMark2] = useState({latitude: 0.782743, longitude: 0.144282});
+	
 	
 	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
 	async function getLongLat() {
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
 		const myJson = await response.json();
 		setJsonData(JSON.stringify(myJson));
-		console.log(JSON.stringify(myJson));
+		
+		var lon = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lng));
+	    var lat = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lat));
+		var swlon = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.southwest.lng));
+	    var swlat = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.southwest.lat));
+		
+		const marking = [{
+			title: 'Heyy',
+			latlng: {
+			  latitude: lat,
+			  longitude: lon
+			}
+		  },
+		  {
+			title: 'Heyy2',
+			latlng: {
+			  latitude: swlat,
+			  longitude: swlon
+			}  
+		}]
+		
+		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+		//setMark({latitude: lat, longitude: lon, title: '', subtitle: ''});
+		setMark(marking);
+		console.log(JSON.stringify(myJson)); 
 	}
 	
+	var i = 0;
+	
 	return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      <ScrollView style={{ flex: 1 }}>
 		<StatusBar barStyle="light-content" />
         <Text>Settings</Text>
 		<Text>{jsonData}</Text>
@@ -195,7 +239,22 @@ const Settings = ({navigation}) => {
 				/>
 			</ThemeProvider>
 		</View>
-      </View>
+		<MapView
+				provider={PROVIDER_GOOGLE}
+				style={{height: 300, width: 400}}
+				region={region}
+			 >
+			 		 
+			 
+				 {markers.map(marker => (
+					<Marker
+					   key={i++}
+					  coordinate={marker.latlng}
+					  title={marker.title}
+					/>
+				  ))}
+			</MapView>
+      </ScrollView>
     );
 }
 
