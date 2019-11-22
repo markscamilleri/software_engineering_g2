@@ -239,7 +239,7 @@ const Settings = ({navigation}) => {
 		<Text>{jsonData}</Text>
 		<View style={styles.button}>
 		<TextInput 
-			style={{height: 40, borderWidth: 2, marginBottom: 10}}
+			style={{height: 40, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
 			onChangeText={text => setValue(text)}
 			defaultValue={value}
 		/>
@@ -260,10 +260,16 @@ const Settings = ({navigation}) => {
 				 {markers.map(marker => (
 					<Marker
 					   key={i++}
+					   showCallout
 					  coordinate={marker.latlng}
 					  title={marker.title}
-					  image="./assets/images/house.jpg"
-					/>
+					  description="This is a house"
+					  image={marker.title === 'Heyy' ? require('./assets/images/home3.png') : require('./assets/images/home2.png')}
+					  onPress={()=>{{navigation.navigate('Feed')}}}
+					>
+					<View style={{backgroundColor: 'white', borderRadius: 5}}><Text>Hey</Text></View>
+					
+					</Marker>
 				  ))}
 			</MapView>
       </ScrollView>
