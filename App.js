@@ -186,7 +186,7 @@ const Settings = ({navigation}) => {
 		}]);
 	const [markers2, setMark2] = useState({latitude: 0.782743, longitude: 0.144282});
 	
-	
+	var {height, width} = Dimensions.get('window');
 	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
 	async function getLongLat() {
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
@@ -197,6 +197,8 @@ const Settings = ({navigation}) => {
 	    var lat = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lat));
 		var swlon = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.southwest.lng));
 	    var swlat = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.southwest.lat));
+		var nelon = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.northeast.lng));
+	    var nelat = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.northeast.lat));
 		
 		const marking = [{
 			title: 'Heyy',
@@ -211,7 +213,16 @@ const Settings = ({navigation}) => {
 			  latitude: swlat,
 			  longitude: swlon
 			}  
-		}]
+		  },
+		  {
+			title: 'Heyy3',
+			latlng: {
+			  latitude: nelat,
+			  longitude: nelon
+			}  
+		  },
+		  
+		]
 		
 		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 		//setMark({latitude: lat, longitude: lon, title: '', subtitle: ''});
@@ -241,7 +252,7 @@ const Settings = ({navigation}) => {
 		</View>
 		<MapView
 				provider={PROVIDER_GOOGLE}
-				style={{height: 300, width: 400}}
+				style={{height: 300, width: width}}
 				region={region}
 			 >
 			 		 
@@ -251,6 +262,7 @@ const Settings = ({navigation}) => {
 					   key={i++}
 					  coordinate={marker.latlng}
 					  title={marker.title}
+					  image="./assets/images/house.jpg"
 					/>
 				  ))}
 			</MapView>
@@ -266,6 +278,7 @@ const Profile = ({navigation}) => {
       </View>
     );
 }
+
 
 const DashboardTabNavigator = createBottomTabNavigator(
 	{

@@ -4,7 +4,7 @@ import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
-import MapView, { PROVIDER_GOOGLE, Marker, UrlTile }  from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker }  from 'react-native-maps';
 import { Toolbar } from 'react-native-material-ui';
 
 const theme = {
