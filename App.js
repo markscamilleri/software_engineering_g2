@@ -12,7 +12,7 @@ import Constants from 'expo-constants';
 import MapView, { PROVIDER_GOOGLE, Marker }  from 'react-native-maps';
 
 import HomeScreen from './screens/HomeScreen.js';
-import MapScreen from './screens/MapScreen.js';
+import MapData from './screens/MapData.js';
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
@@ -96,7 +96,7 @@ const WelcomeScreen = ({navigation}) => {
 			<StatusBar barStyle="dark-content" />
 				<TP.Provider value={getTheme(uiTheme)}>
 					<Toolbar
-						centerElement="ASE Project Group 2"
+						centerElement="ASE Project Group 2 - Home"
 					/>
 				</TP.Provider>
 				<View style={styles.button}>
@@ -288,7 +288,7 @@ const Profile = ({navigation}) => {
 
 const DashboardTabNavigator = createBottomTabNavigator(
 	{
-		Settings,
+		MapData,
 		Profile,
 		Feed,
 	},
@@ -340,7 +340,7 @@ const AppDrawerNavigator = createDrawerNavigator({
 
 const AppSwitchNavigator = createSwitchNavigator({
   Welcome: { screen: WelcomeScreen },
-  Dashboard: { screen: AppDrawerNavigator }
+  Dashboard: { screen: DashboardTabNavigator }
 });
 
 
