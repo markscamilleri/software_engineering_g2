@@ -3,7 +3,7 @@ import { View, ScrollView, Text, TextInput, StyleSheet, Platform, Dimensions } f
 import { Button, ThemeProvider } from 'react-native-elements';
 import { Toolbar, ThemeContext as TP, getTheme } from 'react-native-material-ui';
 import Constants from 'expo-constants';
-import MapView, { PROVIDER_GOOGLE, Marker, Circle}  from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker, Circle, Callout}  from 'react-native-maps';
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
@@ -24,6 +24,7 @@ const MapData = ({navigation}) => {
 	
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState([{
+			id:31241334214312441324124342,
 			title: 'Hey',
 			latlng: {
 			  latitude: 0,
@@ -31,6 +32,7 @@ const MapData = ({navigation}) => {
 			},
 		  },
 		  {
+			id:13243424132142331241243214,
 			title: 'Hey2',
 			latlng: {
 			  latitude: 0.144282,
@@ -39,10 +41,27 @@ const MapData = ({navigation}) => {
 		}]);
 	const [markers2, setMark2] = useState({latitude: 0.782743, longitude: 0.144282});
 	
+	
 	var {height, width} = Dimensions.get('window');
+	
 	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
+	
+	const getLocation = async (address) => { 
+		//let locationData = await Location.getCurrentPositionAsync({});
+		//let latitude = JSON.parse(locationData.coords.latitude);
+		//let longitude = JSON.parse(locationData.coords.longitude);
+
+		try{
+			const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + address + '&key=' + apikey);
+		    return await response.json();
+		}catch (e) {
+			console.log(e)
+		}
+	
+	}
+	
 	async function getLongLat() {
-		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
+		/*const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
 		const myJson = await response.json();
 		setJsonData(JSON.stringify(myJson));
 		
@@ -51,36 +70,48 @@ const MapData = ({navigation}) => {
 		var swlon = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.southwest.lng));
 	    var swlat = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.southwest.lat));
 		var nelon = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.northeast.lng));
-	    var nelat = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.northeast.lat));
+	    var nelat = parseFloat(JSON.stringify(myJson.results[0].geometry.viewport.northeast.lat));*/
 		
-		const marking = [{
-			title: 'Heyy',
-			latlng: {
-			  latitude: lat,
-			  longitude: lon
+		const res = await fetch('http://34.89.126.252/getHouses', {
+			method: 'POST',
+			body: JSON.stringify({
+				lat: 50.8445258,
+				lon: -0.1259262,
+				radius: 500,
+				limit: 100
+			}),
+			headers: {
+				'Content-Type': 'application/json'
+			},
+		});
+		
+		const data = await res.json();
+		console.log(JSON.stringify(data));
+		console.log(data.length);
+		
+		let listOfMarks = [];
+		var i;
+		for(i = 0; i < data.length; i++) {
+			const houselocation = await getLocation(data[i].paon + " " + data[i].street + " " + data[i].postcode);
+			let lon = await parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
+			let lat = await parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
+			let obj = {
+					id:data[i].id,
+					price:data[i].price,
+					address:data[i].paon + " " + data[i].street + "\n" + data[i].postcode,
+					latlng: {
+					  latitude:lat,
+					  longitude:lon
+					}
 			}
-		  },
-		  {
-			title: 'Heyy2',
-			latlng: {
-			  latitude: swlat,
-			  longitude: swlon
-			}  
-		  },
-		  {
-			title: 'Heyy3',
-			latlng: {
-			  latitude: nelat,
-			  longitude: nelon
-			}  
-		  },
-		  
-		]
+			listOfMarks.push(obj);
+		}
+		console.log(JSON.stringify(listOfMarks));
 		
-		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
-		//setMark({latitude: lat, longitude: lon, title: '', subtitle: ''});
-		setMark(marking);
-		console.log(JSON.stringify(myJson)); 
+		
+		
+		setRegion({latitude: 50.8445258, longitude: -0.1259262, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+		setMark(listOfMarks); 
 	}
 	
 	return (
@@ -113,13 +144,14 @@ const MapData = ({navigation}) => {
 				 {markers.map(marker => (
 					<>
 					<Marker
-					   key={marker.title}
+					  key={marker.id}
 					  coordinate={marker.latlng}
-					  title={marker.title}
-					  description="This is a house"
-					  image={marker.title === 'Heyy' ? require('../assets/images/home3.png') : require('../assets/images/home2.png')}
-					  onPress={()=>{{navigation.navigate('Feed')}}}
+					  image={marker.title === 'Heyy' ? require('../assets/images/hgreen.png') : require('../assets/images/hgreen.png')}
 					>
+					<Callout>
+					<View style={{textAlign: 'center'}}><Text>£{marker.price}</Text></View>
+					<View><Text>{marker.address}</Text></View>
+					</Callout>
 					</Marker>
 				  </>
 				  ))}
