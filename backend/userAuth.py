@@ -3,21 +3,14 @@ import mysql.connector
 import hashlib
 import secrets
 
-
 app = Flask(__name__)
-
-
-@app.route('/')
-def index():
-    return 'hello world'
-
 
 tableName = "users"
 gpsDatabase = mysql.connector.connect(  # connect to db
-        host="34.89.126.252",  # won't change
-        user="root",  # username for rwx access
-        password="ASE@group.2=100%",
-        database="Group2DB"  # schema name
+    host="localhost",  # won't change
+    user="root",  # username for rwx access
+    password="{Change this when deploying/testing on server but do not commit}",
+    database="price_paid_data"  # schema name
 )
 
 commander = gpsDatabase.cursor()
@@ -41,14 +34,15 @@ def passwordCheckHash(password, salt):  # this function is used when checking ha
 
 
 def getSalt(username):  # get the salt of a password from database
-    command = f"SELECT salt FROM {tableName} WHERE username = '{username}'"
-    salt = commander.fetchone(command)
-    return salt
+    command = "SELECT salt FROM users WHERE username = %s"
+    commander.execute(command, (username,))
+    salt = commander.fetchone()
+    return salt[0]  # TODO use dict cursor or SQLQueue and refer from there
 
 
 def usernameExists(username):  # This function should be used to check if a username has been taken or not on signup
-    command = f"SELECT * FROM {tableName} WHERE username = '{username}'"
-    commander.execute(command)
+    command = "SELECT * FROM users WHERE username = %s"
+    commander.execute(command, (username,))
     if len(commander.fetchall()):
         return True  # username has been taken
     else:
@@ -56,8 +50,8 @@ def usernameExists(username):  # This function should be used to check if a user
 
 
 def checkLogin(username, password):  # this checks for login details in table
-    command = f"SELECT username, hash2 FROM {tableName} WHERE username = '{username}' AND hash2 = '{password}'"
-    commander.execute(command)
+    command = f"SELECT username, hash2 FROM users WHERE username = %s AND hash2 = %s"
+    commander.execute(command, (username, password))
     if len(commander.fetchall()):  # username and/or hash2 are correct as found in table
         return True
     else:  # username and/or hash2 are incorrect as not found in table
@@ -65,8 +59,8 @@ def checkLogin(username, password):  # this checks for login details in table
 
 
 def addNewUser(username, hash2, salt):  # adds a new user into the table
-    command = f"INSERT INTO {tableName} (username, hash2, salt) VALUES ('{username}', '{hash2}', '{salt}')"
-    commander.execute(command)
+    command = "INSERT INTO users (username, hash2, salt) VALUES (%s, %s, %s)"
+    commander.execute(command, (username, hash2, salt))
     gpsDatabase.commit()
 
 

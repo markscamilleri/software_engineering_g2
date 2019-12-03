@@ -50,5 +50,6 @@ def storeDeviceLocation():
     	   The latitude is: {latitude}
     	   The longitude is: {longitude}'''
 
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=80)
