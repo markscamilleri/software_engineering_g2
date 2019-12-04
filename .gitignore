@@ -1,5 +1,6 @@
 ### Expo
 .expo
+.expo-shared/
 
 # Created by .ignore support plugin (hsz.mobi)
 ### TortoiseGit template
@@ -397,3 +398,7 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+
+#PYthon stuff
+__pycache__/
+venv/
