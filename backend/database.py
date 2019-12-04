@@ -8,7 +8,7 @@ import janus
 import mysql.connector
 import mysql.connector.pooling
 
-from backend.src.exceptions import InvalidArgumentException, ProgramClosingException, SingletonException
+from exception import InvalidArgumentException, ProgramClosingException, SingletonException
 
 POOL_SIZE = 5
 
