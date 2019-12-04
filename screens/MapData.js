@@ -1,18 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import { View, Text, TextInput, StyleSheet, Platform, Dimensions, ProgressViewIOS, ProgressBarAndroid } from 'react-native';
 import { Button, ThemeProvider } from 'react-native-elements';
 import { Toolbar, ThemeContext as TP, getTheme } from 'react-native-material-ui';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
+import { StoreContext } from '../Store.js';
 import MapView, { PROVIDER_GOOGLE, Marker, Circle, Callout}  from 'react-native-maps';
-
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
+
 const MapData = ({navigation}) => {
+	const {
+		radius: [radius, setRadius],
+	} = useContext(StoreContext);
+
+	const {
+		limit: [limit, setLimit],
+	} = useContext(StoreContext);
+
 	const [renderMap, setMapRender] = useState(false);
 	const [phonePosition, setPhonePosition] = useState();
-	const [value, setValue] = useState('');
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState([{
 			id:"d96b7a82-162f-11ea-8d71-362b9e155667",
@@ -71,6 +79,10 @@ const MapData = ({navigation}) => {
     };
 	
 	async function getLongLat() {
+		setMapRender(false);
+		let radi = radius;
+		let limi = limit;
+		console.log(radi + " HEERE");
 		let phonelocation = await getPermissions();
 		let phonelat = JSON.parse(phonelocation.coords.latitude);
 		let phonelon = JSON.parse(phonelocation.coords.longitude);
@@ -80,8 +92,8 @@ const MapData = ({navigation}) => {
 			body: JSON.stringify({
 				lat: phonelat,
 				lon: phonelon,
-				radius: 500,
-				limit: 100
+				radius: radi,
+				limit: limi
 			}),
 			headers: {
 				'Content-Type': 'application/json'
@@ -117,14 +129,13 @@ const MapData = ({navigation}) => {
 		setPhonePosition({latitude: phonelat, longitude: phonelon});
 		setMark(listOfMarks);
 		setMapRender(true);
-		clearTimeout(myVar);
 	}
 
 	return (
       <View style={styles.nav}>
 		<TP.Provider value={getTheme(uiTheme)}>
 			<Toolbar
-				centerElement="ASE Project Group 2 | Map"
+				centerElement={"ASE Project Group 2 | Map | "+radius}
 			/>
 		</TP.Provider>
 		{ renderMap ? <View><MapView
@@ -170,7 +181,6 @@ const MapData = ({navigation}) => {
       </View>
     );
 }
-
 export default MapData;
 
 const uiTheme = {

@@ -1,15 +1,24 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import { View, Text, TextInput, StyleSheet, Platform, Dimensions, ProgressViewIOS, ProgressBarAndroid } from 'react-native';
 import { Button, ThemeProvider } from 'react-native-elements';
 import { Toolbar, ThemeContext as TP, getTheme } from 'react-native-material-ui';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
+import { StoreContext } from '../Store.js';
 import MapView, { PROVIDER_GOOGLE, Marker, Circle, Callout}  from 'react-native-maps';
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const MapSearch = ({navigation}) => {
+	const {
+		radius: [radius, setRadius],
+	} = useContext(StoreContext);
+
+	const {
+		limit: [limit, setLimit],
+	} = useContext(StoreContext);
+
 	const [value, setValue] = useState('');
 	const [searchPosition, setSearchPosition] = useState({latitude: 0, longitude: 0});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
@@ -49,7 +58,8 @@ const MapSearch = ({navigation}) => {
 		
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
 		const myJson = await response.json();
-		
+		let radi = radius;
+		let limi = limit;
 		var lon = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lng));
 	    var lat = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lat));
 
@@ -58,8 +68,8 @@ const MapSearch = ({navigation}) => {
 			body: JSON.stringify({
 				lat: lat,
 				lon: lon,
-				radius: 500,
-				limit: 100
+				radius: radi,
+				limit: limi
 			}),
 			headers: {
 				'Content-Type': 'application/json'
@@ -108,6 +118,11 @@ const MapSearch = ({navigation}) => {
 		<Text style={{textAlign: 'center', marginBottom: 10}}>Enter A Street Address</Text>
 		<TextInput 
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
+			onChangeText={text => setValue(text)}
+			defaultValue={value}
+		/>
+		<TextInput 
+			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5, width: 50}}
 			onChangeText={text => setValue(text)}
 			defaultValue={value}
 		/>

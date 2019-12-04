@@ -1,14 +1,14 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useEffect, useState} from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS,
 ProgressBarAndroid } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { createSwitchNavigator, createAppContainer} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
+import { createDrawerNavigator } from 'react-navigation-drawer';
 import { Toolbar, ThemeContext as TP, COLOR, getTheme } from 'react-native-material-ui';
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
-import StoreProvider, { StoreContext, Details } from './Store.js';
 
 import MapSearch from './screens/MapSearch.js';
 import MapData from './screens/MapData.js';
@@ -77,6 +77,7 @@ const styles = StyleSheet.create({
 
 
 const WelcomeScreen = ({navigation}) => {
+	
 	return (
 		<>
 			<View style={styles.nav}>
@@ -122,23 +123,10 @@ const DashboardScreen = ({navigation}) => {
     );
 }
 
-const Settings = ({type, navigation}) => {
-	const {
-		radius: [radius, setRadius],
-	} = useContext(StoreContext);
-
-	const {
-		limit: [limit, setLimit],
-	} = useContext(StoreContext);
-
-	const [lim, setLim] = useState(limit);
-	const [rad, setRad] = useState(radius);
+const Settings = ({navigation}) => {
+	//const [raduisVal, setRadiusVal] = useState('');
+	//const [raduisVal, setRadiusVal] = useState('');
 	
-	function handleChange() {
-		setRadius(rad);
-		setLimit(lim);
-	}
-
 	return (
 		<View style={styles.nav}>
 		<TP.Provider value={getTheme(uiTheme)}>
@@ -152,24 +140,23 @@ const Settings = ({type, navigation}) => {
 		<Text style={{marginBottom: 5}}>Set Search Radius (Meters):</Text>
 		<TextInput 
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
-			onChangeText={e => setRad(e)}
-			defaultValue={""+radius}
+			onChangeText={text => global.radius = text}
+			defaultValue={"500"}
 		/>
 
 		<Text style={{ marginBottom: 5}}>Set Number of Results:</Text>
 		<TextInput 
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
-			onChangeText={e => setLim(e)}
-			defaultValue={""+limit}
+			onChangeText={text => global.houseLimit = text}
+			defaultValue={"100"}
 		/>
 
 			<ThemeProvider theme={buttontheme}>
 				<Button
 				  title="Submit"
-				  onPress={()=>{{handleChange()}}}
+				  onPress={()=>{{}}}
 				/>
 			</ThemeProvider>
-			<Text>{radius} | {limit}</Text>
 		</View>
       </View>
     );
@@ -177,9 +164,9 @@ const Settings = ({type, navigation}) => {
 
 const DashboardTabNavigator = createBottomTabNavigator(
 	{
-		Settings,
-		MapSearch,
 		MapData,
+		MapSearch,
+		Settings,
 	},
 	{
 		navigationOptions: ({ navigation }) => {
@@ -223,10 +210,6 @@ const AppSwitchNavigator = createSwitchNavigator({
 });
 
 
-const App = createAppContainer(AppSwitchNavigator);
+const Application = createAppContainer(AppSwitchNavigator);
 
-export default () => (
-	<StoreProvider>
-	  <App />
-	</StoreProvider>
-  );
+export default Application;
