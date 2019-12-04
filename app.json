@@ -34,7 +34,10 @@
 			"googleMaps": {
 				"apiKey": "AIzaSyAa404yUxBDV88gEqcFNnMLKfhGP0eAv5c"
 			}
-		}
+    },
+    "permissions": [
+      "ACCESS_FINE_LOCATION"
+    ]
 	},
   }
 }

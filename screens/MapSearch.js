@@ -9,10 +9,9 @@ import MapView, { PROVIDER_GOOGLE, Marker, Circle, Callout}  from 'react-native-
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
-const MapData = ({navigation}) => {
-	const [renderMap, setMapRender] = useState(false);
-	const [phonePosition, setPhonePosition] = useState();
+const MapSearch = ({navigation}) => {
 	const [value, setValue] = useState('');
+	const [searchPosition, setSearchPosition] = useState({latitude: 0, longitude: 0});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState([{
 			id:"d96b7a82-162f-11ea-8d71-362b9e155667",
@@ -31,12 +30,11 @@ const MapData = ({navigation}) => {
 		setLoad((time + 0.01) % 1);
 	}
 	var myVar = setTimeout(loading, 10);
+	
+	
 	var {height, width} = Dimensions.get('window');
+	
 	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
-
-	useEffect(() => {
-		getLongLat(); 
-	}, []);
 	
 	const getLocation = async (address) => { 
 		try{
@@ -46,40 +44,20 @@ const MapData = ({navigation}) => {
 			console.log(e)
 		}
 	}
-
-	const getPermissions = async () => {
-
-        try {
-            let {status} = await Permissions.askAsync(Permissions.LOCATION);
-            if (status === 'granted') {
-                try {
-                    let locationdata = await Location.getCurrentPositionAsync({
-						maximumAge: 60000, // only for Android
-						accuracy: Platform.OS === 'android' ? Location.Accuracy.High : Location.Accuracy.High});
-					return locationdata;
-                } catch (error) {
-                    console.log('Permission to turn on phone location was denied: ' + error.message);
-                }
-            } else {
-                console.log('Permission to access location was denied' + error.message);
-            }
-
-        } catch (error) {
-            console.log('There has been a problem with location: ' + error.message);
-        }
-
-    };
 	
 	async function getLongLat() {
-		let phonelocation = await getPermissions();
-		let phonelat = JSON.parse(phonelocation.coords.latitude);
-		let phonelon = JSON.parse(phonelocation.coords.longitude);
-		console.log(JSON.parse(phonelocation.coords.latitude));
+		
+		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
+		const myJson = await response.json();
+		
+		var lon = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lng));
+	    var lat = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lat));
+
 		const res = await fetch('http://34.89.126.252/getHouses', {
 			method: 'POST',
 			body: JSON.stringify({
-				lat: phonelat,
-				lon: phonelon,
+				lat: lat,
+				lon: lon,
 				radius: 500,
 				limit: 100
 			}),
@@ -113,13 +91,12 @@ const MapData = ({navigation}) => {
 		}
 		console.log(JSON.stringify(listOfMarks));
 
-		setRegion({latitude: phonelat, longitude: phonelon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
-		setPhonePosition({latitude: phonelat, longitude: phonelon});
+		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+		setSearchPosition({latitude: lat, longitude: lon});
 		setMark(listOfMarks);
-		setMapRender(true);
 		clearTimeout(myVar);
 	}
-
+	
 	return (
       <View style={styles.nav}>
 		<TP.Provider value={getTheme(uiTheme)}>
@@ -127,10 +104,24 @@ const MapData = ({navigation}) => {
 				centerElement="ASE Project Group 2 | Map"
 			/>
 		</TP.Provider>
-		{ renderMap ? <View><MapView
+		<View style={styles.button}>
+		<Text style={{textAlign: 'center', marginBottom: 10}}>Enter A Street Address</Text>
+		<TextInput 
+			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
+			onChangeText={text => setValue(text)}
+			defaultValue={value}
+		/>
+			<ThemeProvider theme={buttontheme}>
+				<Button
+				  title="Search"
+				  onPress={()=>{{getLongLat()}}}
+				/>
+			</ThemeProvider>
+		</View>
+		<MapView
 			provider={PROVIDER_GOOGLE}
-			style={{height: height*0.7, width: width}}
-			initialRegion={region}
+			style={{height: height*0.6, width: width}}
+			region={region}
 		>
 				 {markers.map(marker => (
 					<React.Fragment key={""+marker.id+marker.num}>
@@ -154,24 +145,15 @@ const MapData = ({navigation}) => {
 				  ))}
 
 				  <Circle 
-					  center={phonePosition}
+					  center={searchPosition}
 					  radius={500}
 				  />
 			</MapView>
-			<View style={styles.button}>
-			<ThemeProvider theme={buttontheme}>
-				<Button
-				  title="Refresh Position"
-				  onPress={()=>{{getLongLat()}}}
-				/>
-			</ThemeProvider>
-		</View></View> : Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressBarAndroid styleAttr="Horizontal" progress={load} color="#0080ff"/></> : <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressViewIOS progress={load} /></>
-			}
       </View>
     );
 }
 
-export default MapData;
+export default MapSearch;
 
 const uiTheme = {
     palette: {
