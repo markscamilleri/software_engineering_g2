@@ -34,5 +34,5 @@ def callAPI(lat, lon, rad, lim):
     return onlyPostcodes 
 
 if __name__ == '__main__':
-    db = database.SQLQueue.get_instance(host="34.89.126.252", user="root", password="ASE@group.2=100%", database="price_paid_data")
+    db = database.SQLQueue.get_instance(host="34.89.126.252", user="root", password="GTFO", database="price_paid_data")
     app.run(host='0.0.0.0', port=80)
