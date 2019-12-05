@@ -71,6 +71,7 @@ const MapData = ({navigation}) => {
     };
 	
 	async function getLongLat() {
+		setMapRender(false);
 		let phonelocation = await getPermissions();
 		let phonelat = JSON.parse(phonelocation.coords.latitude);
 		let phonelon = JSON.parse(phonelocation.coords.longitude);

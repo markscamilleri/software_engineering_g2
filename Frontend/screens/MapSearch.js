@@ -11,6 +11,8 @@ const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const MapSearch = ({navigation}) => {
 	const [value, setValue] = useState('');
+	const [renderMap, setMapRender] = useState(false);
+	const [showLoading, setShowLoading] = useState(false);
 	const [searchPosition, setSearchPosition] = useState({latitude: 0, longitude: 0});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState([{
@@ -29,7 +31,7 @@ const MapSearch = ({navigation}) => {
 		var time = load;
 		setLoad((time + 0.01) % 1);
 	}
-	var myVar = setTimeout(loading, 10);
+	var myVar;
 	
 	
 	var {height, width} = Dimensions.get('window');
@@ -46,7 +48,9 @@ const MapSearch = ({navigation}) => {
 	}
 	
 	async function getLongLat() {
-		
+		setMapRender(false);
+		setShowLoading(true);
+		myVar = setTimeout(loading, 10);
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
 		const myJson = await response.json();
 		
@@ -94,9 +98,11 @@ const MapSearch = ({navigation}) => {
 		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 		setSearchPosition({latitude: lat, longitude: lon});
 		setMark(listOfMarks);
+		setShowLoading(false);
+		setMapRender(true);
 		clearTimeout(myVar);
 	}
-	
+	var i = 0;
 	return (
       <View style={styles.nav}>
 		<TP.Provider value={getTheme(uiTheme)}>
@@ -118,15 +124,15 @@ const MapSearch = ({navigation}) => {
 				/>
 			</ThemeProvider>
 		</View>
-		<MapView
+		{ renderMap ? <View><MapView
 			provider={PROVIDER_GOOGLE}
 			style={{height: height*0.6, width: width}}
-			region={region}
+			initialRegion={region}
 		>
-				 {markers.map(marker => (
-					<React.Fragment key={""+marker.id+marker.num}>
+				 {	
+					markers.map(marker => (
+					<React.Fragment key={""+marker.id+marker.num+(i++)}>
 					<Marker
-					  
 					  coordinate={marker.latlng}
 					  image={marker.type === 'F' ? require('../assets/images/flat.png') : require('../assets/images/hgreen.png')}
 					>
@@ -146,9 +152,9 @@ const MapSearch = ({navigation}) => {
 
 				  <Circle 
 					  center={searchPosition}
-					  radius={500}
+					  radius={200}
 				  />
-			</MapView>
+		</MapView></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressBarAndroid styleAttr="Horizontal" progress={load} color="#0080ff"/></> : <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressViewIOS progress={load} /></> : null }
       </View>
     );
 }
