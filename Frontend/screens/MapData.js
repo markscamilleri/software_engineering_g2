@@ -6,11 +6,15 @@ import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE, Marker, Circle, Callout}  from 'react-native-maps';
+import { useStateValue  } from '../StateContext.js';
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const MapData = ({navigation}) => {
+	const [{ mapprops }, dispatch] = useStateValue();
+	const [circleRadi, setCircleRadi] = useState(mapprops.radius);
 	const [renderMap, setMapRender] = useState(false);
+	const [showLoading, setShowLoading] = useState(false);
 	const [phonePosition, setPhonePosition] = useState();
 	const [value, setValue] = useState('');
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
@@ -72,6 +76,9 @@ const MapData = ({navigation}) => {
 	
 	async function getLongLat() {
 		setMapRender(false);
+		setShowLoading(true);
+		var rad = parseInt(mapprops.radius);
+		var lim = parseInt(mapprops.limit);
 		let phonelocation = await getPermissions();
 		let phonelat = JSON.parse(phonelocation.coords.latitude);
 		let phonelon = JSON.parse(phonelocation.coords.longitude);
@@ -81,8 +88,8 @@ const MapData = ({navigation}) => {
 			body: JSON.stringify({
 				lat: phonelat,
 				lon: phonelon,
-				radius: 500,
-				limit: 100
+				radius: rad,
+				limit: lim
 			}),
 			headers: {
 				'Content-Type': 'application/json'
@@ -97,8 +104,8 @@ const MapData = ({navigation}) => {
 		var i;
 		for(i = 0; i < data.length; i++) {
 			const houselocation = await getLocation(data[i].paon + " " + data[i].street + " " + data[i].postcode);
-			let lon = await parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
-			let lat = await parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
+			let lon = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
+			let lat = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
 			let obj = {
 					id:data[i].id,
 					num:data[i].paon,
@@ -118,6 +125,7 @@ const MapData = ({navigation}) => {
 		setPhonePosition({latitude: phonelat, longitude: phonelon});
 		setMark(listOfMarks);
 		setMapRender(true);
+		setCircleRadi(rad);
 		clearTimeout(myVar);
 	}
 
@@ -156,7 +164,7 @@ const MapData = ({navigation}) => {
 
 				  <Circle 
 					  center={phonePosition}
-					  radius={500}
+					  radius={parseInt(circleRadi)}
 				  />
 			</MapView>
 			<View style={styles.button}>

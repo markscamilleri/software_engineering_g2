@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import { View, Text, TextInput, StyleSheet, Platform, Dimensions, ProgressViewIOS, ProgressBarAndroid } from 'react-native';
 import { Button, ThemeProvider } from 'react-native-elements';
 import { Toolbar, ThemeContext as TP, getTheme } from 'react-native-material-ui';
@@ -6,13 +6,19 @@ import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE, Marker, Circle, Callout}  from 'react-native-maps';
+import { CounterContext, updateRadius } from '../Global.js';
+import { useFocusEffect } from '@react-navigation/core';
+import { withNavigation } from 'react-navigation';
+import { useStateValue  } from '../StateContext.js';
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const MapSearch = ({navigation}) => {
+	const [{ mapprops }, dispatch] = useStateValue();
 	const [value, setValue] = useState('');
 	const [renderMap, setMapRender] = useState(false);
 	const [showLoading, setShowLoading] = useState(false);
+	const [circleRadi, setCircleRadi] = useState(mapprops.radius);
 	const [searchPosition, setSearchPosition] = useState({latitude: 0, longitude: 0});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState([{
@@ -51,6 +57,8 @@ const MapSearch = ({navigation}) => {
 		setMapRender(false);
 		setShowLoading(true);
 		myVar = setTimeout(loading, 10);
+		var rad = parseInt(mapprops.radius);
+		var lim = parseInt(mapprops.limit);
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
 		const myJson = await response.json();
 		
@@ -62,8 +70,8 @@ const MapSearch = ({navigation}) => {
 			body: JSON.stringify({
 				lat: lat,
 				lon: lon,
-				radius: 500,
-				limit: 100
+				radius: rad,
+				limit: lim
 			}),
 			headers: {
 				'Content-Type': 'application/json'
@@ -78,8 +86,8 @@ const MapSearch = ({navigation}) => {
 		var i;
 		for(i = 0; i < data.length; i++) {
 			const houselocation = await getLocation(data[i].paon + " " + data[i].street + " " + data[i].postcode);
-			let lon = await parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
-			let lat = await parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
+			let lon = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
+			let lat = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
 			let obj = {
 					id:data[i].id,
 					num:data[i].paon,
@@ -98,6 +106,7 @@ const MapSearch = ({navigation}) => {
 		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 		setSearchPosition({latitude: lat, longitude: lon});
 		setMark(listOfMarks);
+		setCircleRadi(rad);
 		setShowLoading(false);
 		setMapRender(true);
 		clearTimeout(myVar);
@@ -111,7 +120,7 @@ const MapSearch = ({navigation}) => {
 			/>
 		</TP.Provider>
 		<View style={styles.button}>
-		<Text style={{textAlign: 'center', marginBottom: 10}}>Enter A Street Address</Text>
+		<Text style={{textAlign: 'center', marginBottom: 10}}>Enter A Street Address (Num + Street + Postcode) </Text>
 		<TextInput 
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
 			onChangeText={text => setValue(text)}
@@ -123,6 +132,7 @@ const MapSearch = ({navigation}) => {
 				  onPress={()=>{{getLongLat()}}}
 				/>
 			</ThemeProvider>
+			<Text>Radius: {mapprops.radius} | Limit: {mapprops.limit}</Text>
 		</View>
 		{ renderMap ? <View><MapView
 			provider={PROVIDER_GOOGLE}
@@ -152,14 +162,14 @@ const MapSearch = ({navigation}) => {
 
 				  <Circle 
 					  center={searchPosition}
-					  radius={200}
+					  radius={parseInt(circleRadi)}
 				  />
 		</MapView></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressBarAndroid styleAttr="Horizontal" progress={load} color="#0080ff"/></> : <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressViewIOS progress={load} /></> : null }
       </View>
     );
 }
 
-export default MapSearch;
+export default withNavigation(MapSearch);
 
 const uiTheme = {
     palette: {

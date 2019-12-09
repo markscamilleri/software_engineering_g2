@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext, useReducer} from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS,
 ProgressBarAndroid } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
-import { createSwitchNavigator, createAppContainer} from 'react-navigation';
+import { createSwitchNavigator, createAppContainer, NavigationEvents, withNavigationFocus} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
 import { createDrawerNavigator } from 'react-navigation-drawer';
@@ -10,9 +10,12 @@ import { Toolbar, ThemeContext as TP, COLOR, getTheme } from 'react-native-mater
 import { Button, ThemeProvider } from 'react-native-elements';
 import Constants from 'expo-constants';
 import MapView, { PROVIDER_GOOGLE, Marker }  from 'react-native-maps';
-
+import { CounterContext, CounterProvider, updateRadius } from './Global.js';
+import { StateProvider, useStateValue  } from './StateContext.js';
+import Rainbow from 'rainbowvis.js';
 import MapSearch from './screens/MapSearch.js';
 import MapData from './screens/MapData.js';
+import { Icon as IconElements } from 'react-native-elements'
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
@@ -75,7 +78,8 @@ const styles = StyleSheet.create({
 
 
 const WelcomeScreen = ({navigation}) => {
-	
+	var myRainbow = new Rainbow();
+	myRainbow.setSpectrum('red', 'yellow', 'green');
 	return (
 		<>
 			<View style={styles.nav}>
@@ -93,6 +97,24 @@ const WelcomeScreen = ({navigation}) => {
 						/>
 					</ThemeProvider>
 				</View>
+				<Text style={{color: '#'+myRainbow.colourAt(90)}}>Hello</Text>
+				<IconElements
+				  name='home'
+				  type='font-awesome'
+				  size={50}
+				  color={'#'+myRainbow.colourAt(90)} />
+				  <IconElements
+				  name='home'
+				  type='font-awesome'
+				  size={50}
+				  color={'#'+myRainbow.colourAt(50)} />
+				<IconElements
+				  name='building'
+				  type='font-awesome'
+				  size={25}
+				  reverse={true}
+				  raised={true}
+				  color={'#'+myRainbow.colourAt(0)} />
 			</View>
 		</>
     );
@@ -123,12 +145,15 @@ const DashboardScreen = ({navigation}) => {
 
 const Settings = ({navigation}) => {
 	const [value, setValue] = useState('');
+	const [{ mapprops }, dispatch] = useStateValue();
+	const [radi, setRadi] = useState(500);
+	const [limi, setLimi] = useState(100);
 	
 	return (
 		<View style={styles.nav}>
 		<TP.Provider value={getTheme(uiTheme)}>
 			<Toolbar
-				centerElement="ASE Project Group 2 | Map"
+				centerElement="ASE Project Group 2 | Settings"
 			/>
 		</TP.Provider>
 		<Text style={{textAlign: 'center', marginTop: 10}}>---Change MapView Settings---</Text>
@@ -137,23 +162,27 @@ const Settings = ({navigation}) => {
 		<Text style={{marginBottom: 5}}>Set Search Radius (Meters):</Text>
 		<TextInput 
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
-			onChangeText={text => setValue(text)}
-			defaultValue={value}
+			onChangeText={rad => setRadi(rad)}
+			defaultValue={mapprops.radius+""}
 		/>
 
 		<Text style={{ marginBottom: 5}}>Set Number of Results:</Text>
 		<TextInput 
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
-			onChangeText={text => setValue(text)}
-			defaultValue={value}
+			onChangeText={lim => setLimi(lim)}
+			defaultValue={mapprops.limit+""}
 		/>
 
 			<ThemeProvider theme={buttontheme}>
 				<Button
 				  title="Submit"
-				  onPress={()=>{{}}}
+				  onPress={() => dispatch({
+					type: 'changeParams',
+					params: { radius: radi, limit: limi}
+				  })}
 				/>
 			</ThemeProvider>
+			<Text>{mapprops.radius} | {mapprops.limit}</Text>
 		</View>
       </View>
     );
@@ -171,9 +200,9 @@ const Search = ({navigation}) => {
 
 const DashboardTabNavigator = createBottomTabNavigator(
 	{
+		Settings,
 		MapData,
 		MapSearch,
-		Settings,
 	},
 	{
 		navigationOptions: ({ navigation }) => {
@@ -229,4 +258,28 @@ const AppSwitchNavigator = createSwitchNavigator({
 
 const App = createAppContainer(AppSwitchNavigator);
 
-export default App;
+export default function mem() {
+	
+  const initialState = {
+    mapprops: { radius: 500, limit: 100 }
+  };
+  
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case 'changeParams':
+        return {
+          ...state,
+          mapprops: action.params
+        };
+        
+      default:
+        return state;
+    }
+  };
+
+  return (
+	<StateProvider initialState={initialState} reducer={reducer}>
+	  <App />
+	</StateProvider>
+  );
+}

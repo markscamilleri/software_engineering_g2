@@ -5,12 +5,19 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "eject": "expo eject"
+    "eject": "expo eject",
+    "test": "node_modules/.bin/jest",
+    "test:debug": "node --inspect-brk node_modules/jest/bin/jest.js --runInBand"
+  },
+  "jest": {
+    "preset": "jest-expo-enzyme"
   },
   "dependencies": {
     "expo": "^35.0.1",
     "expo-constants": "^7.0.1",
     "expo-location": "^7.0.0",
+    "rainbowjs": "^0.4.0",
+    "rainbowvis.js": "^1.0.1",
     "react": "16.8.3",
     "react-dom": "16.8.3",
     "react-native": "https://github.com/expo/react-native/archive/sdk-35.0.0.tar.gz",
@@ -28,7 +35,12 @@
     "react-navigation-tabs": "^2.6.0"
   },
   "devDependencies": {
-    "babel-preset-expo": "^7.1.0"
+    "babel-jest": "^24.9.0",
+    "babel-preset-expo": "^7.1.0",
+    "jest": "^24.9.0",
+    "jest-expo": "^35.0.0",
+    "jest-expo-enzyme": "0.0.1",
+    "react-test-renderer": "^16.12.0"
   },
   "private": true
 }
