@@ -95,6 +95,9 @@ class SQLQueue:
         cursor = self.__immediate_connection.cursor(dictionary=True, buffered=True)
         cursor.execute(query, parameters)
 
+        if cursor.rowcount == 0:
+            return {}
+
         if fetch_all:
             return cursor.fetchall()
 
@@ -120,6 +123,7 @@ class SQLQueue:
             raise ProgramClosingException("The queue has closed")
 
     def execute_with_result(self, query: str, parameters: Iterable = None):
+    def blocking_execute(self):
         """
         Blocking call
         """
@@ -129,8 +133,14 @@ class SQLQueue:
         cursor = self.__immediate_connection.cursor(dictionary=True, buffered=True)
         logger.debug(f"Executing the query {query} with parameters {parameters} ")
         cursor.execute(query, parameters)
+
+        if cursor.rowcount == 0:
+            self.__immediate_connection.commit()
+            return {}
+
         result = cursor.fetchall()
         logger.debug(f"Result: {result}")
+        self.__immediate_connection.commit()
 
         return result
 
@@ -150,7 +160,7 @@ class SQLQueue:
             cursor = connection.cursor(dictionary=True, buffered=True)
             cursor.execute(query['query'], query['parameters'])
 
-            result = cursor.fetchall()
+            result = cursor.fetchall() if cursor.rowcount > 0 else None
             logger.debug(f"{query_hash}: result: {result}")
             connection.commit()
             connection.close()
@@ -173,4 +183,6 @@ class SQLQueue:
         self.__query_queue.sync_q.join()
         logger.debug("Terminating Consumers")
         self.__async_query_queue_runner_running = False
+        logger.info("Waiting for threads to finish")
+        self.__async_thread.join()
         logger.info("SQLQueue instance closed")
