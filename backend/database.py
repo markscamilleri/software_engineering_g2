@@ -96,7 +96,7 @@ class SQLQueue:
         cursor.execute(query, parameters)
 
         if cursor.rowcount == 0:
-            return None
+            return {}
 
         if fetch_all:
             return cursor.fetchall()
@@ -123,6 +123,7 @@ class SQLQueue:
             raise ProgramClosingException("The queue has closed")
 
     def execute_with_result(self, query: str, parameters: Iterable = None):
+    def blocking_execute(self):
         """
         Blocking call
         """
@@ -135,7 +136,7 @@ class SQLQueue:
 
         if cursor.rowcount == 0:
             self.__immediate_connection.commit()
-            return None
+            return {}
 
         result = cursor.fetchall()
         logger.debug(f"Result: {result}")
