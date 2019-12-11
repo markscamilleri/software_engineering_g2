@@ -7,8 +7,8 @@ import {
 } from 'react-native';
 
 //import { Actions } from 'react-native-router-flux';
-import Logo from './Logo';
-import Form from './Form';
+import Logo from './components/Logo';
+import Form from './components/Form';
 
 export default function Signup({navigation}) {
     const signIn = () => {

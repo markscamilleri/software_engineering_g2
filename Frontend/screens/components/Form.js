@@ -7,8 +7,9 @@ import {
     TextInput,
     TouchableOpacity,
 } from 'react-native';
+import {withNavigation} from 'react-navigation';
 
-export default function Form(props) {
+export default withNavigation(function Form({navigation, ...props}) {
     const BACKEND_ENDPOINT = 'http://34.89.126.252';
 
     const [username, setUsername] = useState({ username: '' });
@@ -37,6 +38,10 @@ export default function Form(props) {
                     .then((response) => response.json())
                     .then((responseJson) => {
                         console.log(responseJson);
+                        console.log(responseJson.response)
+                        if(responseJson.response === "True"){
+                            navigation.navigate('Dashboard')
+                        }
                     });
             } catch (e) {
                 console.log(e);
@@ -91,7 +96,7 @@ export default function Form(props) {
             </TouchableOpacity>
         </View>
     );
-}
+});
 const styles = StyleSheet.create({
     container: {
         flexGrow: 1,
