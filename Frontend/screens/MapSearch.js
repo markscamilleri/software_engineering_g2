@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext} from 'react';
 import { View, Text, TextInput, StyleSheet, Platform, Dimensions, ProgressViewIOS, ProgressBarAndroid } from 'react-native';
-import { Button, ThemeProvider } from 'react-native-elements';
+import { Button, ThemeProvider, Icon } from 'react-native-elements';
 import { Toolbar, ThemeContext as TP, getTheme } from 'react-native-material-ui';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
@@ -10,12 +10,20 @@ import { CounterContext, updateRadius } from '../Global.js';
 import { useFocusEffect } from '@react-navigation/core';
 import { withNavigation } from 'react-navigation';
 import { useStateValue  } from '../StateContext.js';
+import Rainbow from 'rainbowvis.js';
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const MapSearch = ({navigation}) => {
+	var myVar;
+	let gradientColours = new Rainbow();
+	gradientColours.setSpectrum('green', 'yellow', 'red');
+	var {height, width} = Dimensions.get('window');
+	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
 	const [{ mapprops }, dispatch] = useStateValue();
 	const [value, setValue] = useState('');
+	const [numLoad, setNumLoad] = useState(0);
+	const [dataSize, setDataSize] = useState(0);
 	const [renderMap, setMapRender] = useState(false);
 	const [showLoading, setShowLoading] = useState(false);
 	const [circleRadi, setCircleRadi] = useState(mapprops.radius);
@@ -37,13 +45,6 @@ const MapSearch = ({navigation}) => {
 		var time = load;
 		setLoad((time + 0.01) % 1);
 	}
-	var myVar;
-	
-	
-	var {height, width} = Dimensions.get('window');
-	
-	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
-	
 	const getLocation = async (address) => { 
 		try{
 			const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + address + '&key=' + apikey);
@@ -83,8 +84,10 @@ const MapSearch = ({navigation}) => {
 		console.log(data.length);
 		
 		let listOfMarks = [];
-		var i;
-		for(i = 0; i < data.length; i++) {
+		var counter = 0;
+		setDataSize(data.length-1);
+		for(let i = 0; i < data.length; i++) {
+			setNumLoad(counter++);
 			const houselocation = await getLocation(data[i].paon + " " + data[i].street + " " + data[i].postcode);
 			let lon = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
 			let lat = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
@@ -97,11 +100,34 @@ const MapSearch = ({navigation}) => {
 					latlng: {
 					  latitude:lat,
 					  longitude:lon
-					}
+					},
+					colour: ""
 			}
 			listOfMarks.push(obj);
 		}
+		setNumLoad(counter++);
 		console.log(JSON.stringify(listOfMarks));
+		
+		let max = 0;
+		for(let i = 0; i < listOfMarks.length; i++) {
+			if (listOfMarks[i].price > max) {
+				max = listOfMarks[i].price;
+			}
+		}
+		
+		let min = listOfMarks[0].price;
+		for(let i = 0; i < listOfMarks.length; i++) {
+			if (listOfMarks[i].price < min) {
+				min = listOfMarks[i].price;
+			}
+		}
+		gradientColours.setNumberRange(parseInt(min), parseInt(max));
+		console.log("BIG: ", max, " SMALL: ", min);
+		
+		for(let i = 0; i < listOfMarks.length; i++) {
+			listOfMarks[i].colour = "#"+gradientColours.colourAt(parseInt(listOfMarks[i].price));
+		}
+		setNumLoad(counter++);
 
 		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 		setSearchPosition({latitude: lat, longitude: lon});
@@ -138,23 +164,214 @@ const MapSearch = ({navigation}) => {
 			provider={PROVIDER_GOOGLE}
 			style={{height: height*0.6, width: width}}
 			initialRegion={region}
+			customMapStyle={[
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#212121"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.icon",
+    "stylers": [
+      {
+        "visibility": "off"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#212121"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.country",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#9e9e9e"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#bdbdbd"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#181818"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#616161"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#1b1b1b"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.fill",
+    "stylers": [
+      {
+        "color": "#2c2c2c"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#8a8a8a"
+      }
+    ]
+  },
+  {
+    "featureType": "road.arterial",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#373737"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#3c3c3c"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway.controlled_access",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#4e4e4e"
+      }
+    ]
+  },
+  {
+    "featureType": "road.local",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#616161"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#757575"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#000000"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#3d3d3d"
+      }
+    ]
+  }
+]}
 		>
 				 {	
 					markers.map(marker => (
 					<React.Fragment key={""+marker.id+marker.num+(i++)}>
+						{/*image={marker.type === 'F' ? require('../assets/images/flat.png') : require('../assets/images/hgreen.png')}*/}
 					<Marker
 					  coordinate={marker.latlng}
-					  image={marker.type === 'F' ? require('../assets/images/flat.png') : require('../assets/images/hgreen.png')}
+					  zIndex={i++}
+					  tracksViewChanges={false}
 					>
-					<Callout>
-						<View><Text>-House Info-</Text></View>
-						<View><Text>----------</Text></View>
-						<View><Text>Price: £{marker.price}</Text></View>
-						<View><Text>----------</Text></View>
-						<View><Text>Type: {marker.type === 'F' ? 'Flat' : marker.type === 'S' ? 'Semi-Detached' : marker.type === 'T' ? 'Terrace' : 'House'}</Text></View>
-						<View><Text>----------</Text></View>
-						<View><Text>{marker.address}</Text></View>
-						<View><Text>----------</Text></View>
+					{marker.type === 'F' ? <Icon
+					  name='building'
+					  type='font-awesome'
+					  size={26}
+					  color={marker.colour} /> : <Icon
+					  name='home'
+					  type='font-awesome'
+					  size={26}
+						color={marker.colour} /> }
+					<Callout style={{backgroundColor: 'white', minWidth: 250, maxWidth: 400, padding: 5, borderRadius: 5, flex: 1}}>
+						<View style={{textAlign: 'center', flex: 1, justifyContent: 'center'}}><Text>-House Info-</Text>
+						<Text>----------</Text>
+						<Text>Price: £{marker.price}</Text>
+						<Text>----------</Text>
+						<Text>Type: {marker.type === 'F' ? 'Flat' : marker.type === 'S' ? 'Semi-Detached' : marker.type === 'T' ? 'Terrace' : 'House'}</Text>
+						<Text>----------</Text>
+						<Text>{marker.address}</Text>
+						<Text>----------</Text>
+						<Text>{marker.colour}</Text>
+						<Text>----------</Text></View>
 					</Callout>
 					</Marker>
 				  </React.Fragment>
@@ -164,7 +381,7 @@ const MapSearch = ({navigation}) => {
 					  center={searchPosition}
 					  radius={parseInt(circleRadi)}
 				  />
-		</MapView></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressBarAndroid styleAttr="Horizontal" progress={load} color="#0080ff"/></> : <><Text style={{textAlign: 'center'}}>Loading map...</Text><ProgressViewIOS progress={load} /></> : null }
+		</MapView></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : null }
       </View>
     );
 }

@@ -146,8 +146,8 @@ const DashboardScreen = ({navigation}) => {
 const Settings = ({navigation}) => {
 	const [value, setValue] = useState('');
 	const [{ mapprops }, dispatch] = useStateValue();
-	const [radi, setRadi] = useState(500);
-	const [limi, setLimi] = useState(100);
+	const [radi, setRadi] = useState(mapprops.radius);
+	const [limi, setLimi] = useState(mapprops.limit);
 	
 	return (
 		<View style={styles.nav}>
@@ -261,7 +261,7 @@ const App = createAppContainer(AppSwitchNavigator);
 export default function mem() {
 	
   const initialState = {
-    mapprops: { radius: 500, limit: 100 }
+    mapprops: { radius: 100, limit: 100 }
   };
   
   const reducer = (state, action) => {
