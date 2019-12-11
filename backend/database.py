@@ -8,6 +8,7 @@ import janus
 import mysql.connector
 import mysql.connector.pooling
 
+from deprecation import deprecated
 from exception import InvalidArgumentException, ProgramClosingException, SingletonException
 
 POOL_SIZE = 5
@@ -103,10 +104,15 @@ class SQLQueue:
 
         return cursor.fetchone()
 
+    @deprecated("Changed name to execute_async")
     def execute(self, query: str, parameters: Iterable = None,
                 callback: Optional[Callable[[List[Dict[str, Any]]], None]] = lambda *args, **kwargs: None) -> None:
+        self.execute_async(query, parameters, callback)
+
+    def execute_async(self, query: str, parameters: Iterable = None,
+                callback: Optional[Callable[[List[Dict[str, Any]]], None]] = lambda *args, **kwargs: None) -> None:
         """
-        Places a query in the queue
+        Places a query in the queue to be executed asynchronously
         :param query: Query to run
         :param parameters: Query Parameters
         :param callback: Optional function to run once the query is complete.
@@ -122,10 +128,13 @@ class SQLQueue:
             logger.debug(f"Query \"{query}\" with parameters {parameters} and callback {callback}")
             raise ProgramClosingException("The queue has closed")
 
+    @deprecated("Changed name to execute_sync")
     def execute_with_result(self, query: str, parameters: Iterable = None):
-    def blocking_execute(self):
+        self.execute_sync(query, parameters)
+
+    def execute_sync(self, query: str, parameters: Iterable = None):
         """
-        Blocking call
+        Blocking call to execute synchronously
         """
         logger = logging.getLogger(__name__)
 
@@ -160,7 +169,11 @@ class SQLQueue:
             cursor = connection.cursor(dictionary=True, buffered=True)
             cursor.execute(query['query'], query['parameters'])
 
-            result = cursor.fetchall() if cursor.rowcount > 0 else None
+            if cursor.rowcount == 0:
+                result = {}
+            else:
+                result = cursor.fetchall()
+
             logger.debug(f"{query_hash}: result: {result}")
             connection.commit()
             connection.close()
