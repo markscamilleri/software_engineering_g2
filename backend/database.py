@@ -9,7 +9,7 @@ import mysql.connector
 import mysql.connector.pooling
 
 from deprecation import deprecated
-from exception import InvalidArgumentException, ProgramClosingException, SingletonException
+from exceptions import InvalidArgumentException, ProgramClosingException, SingletonException
 
 POOL_SIZE = 5
 
