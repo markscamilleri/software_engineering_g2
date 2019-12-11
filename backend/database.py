@@ -97,12 +97,14 @@ class SQLQueue:
         cursor.execute(query, parameters)
 
         if not cursor.with_rows:
-            return {}
+            result = {}
+        elif fetch_all:
+            result = cursor.fetchall()
+        else:
+            result = cursor.fetchone()
 
-        if fetch_all:
-            return cursor.fetchall()
-
-        return cursor.fetchone()
+        self.__immediate_connection.commit()
+        return result
 
     @deprecated("Changed name to execute_async")
     def execute(self, query: str, parameters: Iterable = None,
