@@ -1,6 +1,12 @@
-from flask import Flask, request, jsonify
+import logging.config
+
 import postcodes_io_api
+from flask import Flask, request, jsonify
+
 import database
+
+logging.config.fileConfig("../conf/logger.conf")
+logger = logging.getLogger("root")
 
 app = Flask(__name__)
 
