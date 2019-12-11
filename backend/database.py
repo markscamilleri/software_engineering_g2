@@ -96,7 +96,7 @@ class SQLQueue:
         cursor = self.__immediate_connection.cursor(dictionary=True, buffered=True)
         cursor.execute(query, parameters)
 
-        if cursor.rowcount == 0:
+        if not cursor.with_rows:
             return {}
 
         if fetch_all:
@@ -143,7 +143,7 @@ class SQLQueue:
         logger.debug(f"Executing the query {query} with parameters {parameters} ")
         cursor.execute(query, parameters)
 
-        if cursor.rowcount == 0:
+        if not cursor.with_rows:
             self.__immediate_connection.commit()
             return {}
 
@@ -169,7 +169,7 @@ class SQLQueue:
             cursor = connection.cursor(dictionary=True, buffered=True)
             cursor.execute(query['query'], query['parameters'])
 
-            if cursor.rowcount == 0:
+            if not cursor.with_rows:
                 result = {}
             else:
                 result = cursor.fetchall()
