@@ -45,7 +45,7 @@ const MapSearch = ({navigation}) => {
 		var time = load;
 		setLoad((time + 0.01) % 1);
 	}
-	const getLocation = async (address) => { 
+	const getLocation = async (address) => {
 		try{
 			const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + address + '&key=' + apikey);
 		    return await response.json();
@@ -53,7 +53,7 @@ const MapSearch = ({navigation}) => {
 			console.log(e)
 		}
 	}
-	
+
 	async function getLongLat() {
 		setMapRender(false);
 		setShowLoading(true);
@@ -62,7 +62,7 @@ const MapSearch = ({navigation}) => {
 		var lim = parseInt(mapprops.limit);
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
 		const myJson = await response.json();
-		
+
 		var lon = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lng));
 	    var lat = parseFloat(JSON.stringify(myJson.results[0].geometry.location.lat));
 
@@ -78,13 +78,14 @@ const MapSearch = ({navigation}) => {
 				'Content-Type': 'application/json'
 			},
 		});
-		
+
 		const data = await res.json();
 		console.log(JSON.stringify(data));
 		console.log(data.length);
-		
+
 		let listOfMarks = [];
 		var counter = 0;
+		setNumLoad(counter);
 		setDataSize(data.length-1);
 		for(let i = 0; i < data.length; i++) {
 			setNumLoad(counter++);
@@ -107,14 +108,14 @@ const MapSearch = ({navigation}) => {
 		}
 		setNumLoad(counter++);
 		console.log(JSON.stringify(listOfMarks));
-		
+
 		let max = 0;
 		for(let i = 0; i < listOfMarks.length; i++) {
 			if (listOfMarks[i].price > max) {
 				max = listOfMarks[i].price;
 			}
 		}
-		
+
 		let min = listOfMarks[0].price;
 		for(let i = 0; i < listOfMarks.length; i++) {
 			if (listOfMarks[i].price < min) {
@@ -123,7 +124,7 @@ const MapSearch = ({navigation}) => {
 		}
 		gradientColours.setNumberRange(parseInt(min), parseInt(max));
 		console.log("BIG: ", max, " SMALL: ", min);
-		
+
 		for(let i = 0; i < listOfMarks.length; i++) {
 			listOfMarks[i].colour = "#"+gradientColours.colourAt(parseInt(listOfMarks[i].price));
 		}
@@ -147,7 +148,7 @@ const MapSearch = ({navigation}) => {
 		</TP.Provider>
 		<View style={styles.button}>
 		<Text style={{textAlign: 'center', marginBottom: 10}}>Enter A Street Address (Num + Street + Postcode) </Text>
-		<TextInput 
+		<TextInput
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
 			onChangeText={text => setValue(text)}
 			defaultValue={value}
@@ -343,7 +344,7 @@ const MapSearch = ({navigation}) => {
   }
 ]}
 		>
-				 {	
+				 {
 					markers.map(marker => (
 					<React.Fragment key={""+marker.id+marker.num+(i++)}>
 						{/*image={marker.type === 'F' ? require('../assets/images/flat.png') : require('../assets/images/hgreen.png')}*/}
@@ -377,7 +378,7 @@ const MapSearch = ({navigation}) => {
 				  </React.Fragment>
 				  ))}
 
-				  <Circle 
+				  <Circle
 					  center={searchPosition}
 					  radius={parseInt(circleRadi)}
 				  />
@@ -397,7 +398,7 @@ const uiTheme = {
             height: 60,
         },
     },
-	fontFamily: systemFonts 
+	fontFamily: systemFonts
 };
 
 const buttontheme = {
@@ -410,14 +411,14 @@ const buttontheme = {
   }
 }
 const styles = StyleSheet.create({
-	
+
 	container: {
 	  flex: 1,
 	  backgroundColor: '#fff',
 	  alignItems: 'center',
 	  justifyContent: 'center',
 	  fontFamily: systemFonts,
-	}, 
+	},
 	title: {
 	  marginTop: Constants.statusBarHeight + 20,
 	  fontSize: 18,
