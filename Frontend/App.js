@@ -16,6 +16,8 @@ import Rainbow from 'rainbowvis.js';
 import MapSearch from './screens/MapSearch.js';
 import MapData from './screens/MapData.js';
 import { Icon as IconElements } from 'react-native-elements'
+import Login from './screens/Login.js';
+import Signup from './screens/Signup.js';
 
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
@@ -28,7 +30,7 @@ const uiTheme = {
             height: 60,
         },
     },
-	fontFamily: systemFonts 
+	fontFamily: systemFonts
 };
 
 const buttontheme = {
@@ -42,14 +44,14 @@ const buttontheme = {
 }
 
 const styles = StyleSheet.create({
-	
+
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
 	fontFamily: systemFonts,
-  }, 
+  },
   title: {
     marginTop: Constants.statusBarHeight + 20,
     fontSize: 18,
@@ -123,8 +125,8 @@ const WelcomeScreen = ({navigation}) => {
 
 
 const DashboardScreen = ({navigation}) => {
-	
-	
+
+
 	return (
      <>
 		<View style={styles.nav}>
@@ -133,7 +135,7 @@ const DashboardScreen = ({navigation}) => {
 				<Toolbar
 					leftElement="menu"
 					centerElement="ASE Project Group 2"
-					onLeftElementPress={ 
+					onLeftElementPress={
 						() => navigation.openDrawer()
 					}
 				/>
@@ -148,7 +150,7 @@ const Settings = ({navigation}) => {
 	const [{ mapprops }, dispatch] = useStateValue();
 	const [radi, setRadi] = useState(mapprops.radius);
 	const [limi, setLimi] = useState(mapprops.limit);
-	
+
 	return (
 		<View style={styles.nav}>
 		<TP.Provider value={getTheme(uiTheme)}>
@@ -160,14 +162,14 @@ const Settings = ({navigation}) => {
 		<View style={styles.button}>
 
 		<Text style={{marginBottom: 5}}>Set Search Radius (Meters):</Text>
-		<TextInput 
+		<TextInput
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
 			onChangeText={rad => setRadi(rad)}
 			defaultValue={mapprops.radius+""}
 		/>
 
 		<Text style={{ marginBottom: 5}}>Set Number of Results:</Text>
-		<TextInput 
+		<TextInput
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
 			onChangeText={lim => setLimi(lim)}
 			defaultValue={mapprops.limit+""}
@@ -222,7 +224,7 @@ const DashboardStackNavigator = createStackNavigator(
     DashboardTabNavigator: DashboardTabNavigator
   },
   {
-	
+
     defaultNavigationOptions: ({ navigation }) => {
       return {
         headerLeft: (
@@ -251,19 +253,20 @@ const AppDrawerNavigator = createDrawerNavigator({
 
 
 const AppSwitchNavigator = createSwitchNavigator({
-  Welcome: { screen: WelcomeScreen },
-  Dashboard: { screen: DashboardTabNavigator }
+  Login: { screen: Login },
+  Dashboard: { screen: DashboardTabNavigator },
+  Signup: {screen: Signup }
 });
 
 
 const App = createAppContainer(AppSwitchNavigator);
 
 export default function mem() {
-	
+
   const initialState = {
     mapprops: { radius: 100, limit: 100 }
   };
-  
+
   const reducer = (state, action) => {
     switch (action.type) {
       case 'changeParams':
@@ -271,7 +274,7 @@ export default function mem() {
           ...state,
           mapprops: action.params
         };
-        
+
       default:
         return state;
     }
