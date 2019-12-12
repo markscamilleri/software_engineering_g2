@@ -1,21 +1,17 @@
-import React, {useEffect, useState, useContext, useReducer} from 'react';
+import React, {useState} from 'react';
 import { View, ScrollView, TouchableOpacity, Text, TextInput, StyleSheet, Platform, Dimensions, StatusBar, ProgressViewIOS,
 ProgressBarAndroid } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
-import { createSwitchNavigator, createAppContainer, NavigationEvents, withNavigationFocus} from 'react-navigation';
+import { createSwitchNavigator, createAppContainer} from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import { createStackNavigator } from 'react-navigation-stack';
-import { createDrawerNavigator } from 'react-navigation-drawer';
 import { Toolbar, ThemeContext as TP, COLOR, getTheme } from 'react-native-material-ui';
-import { Button, ThemeProvider } from 'react-native-elements';
+import { Button, ThemeProvider, Divider  } from 'react-native-elements';
 import Constants from 'expo-constants';
-import MapView, { PROVIDER_GOOGLE, Marker }  from 'react-native-maps';
-import { CounterContext, CounterProvider, updateRadius } from './Global.js';
 import { StateProvider, useStateValue  } from './StateContext.js';
 import Rainbow from 'rainbowvis.js';
 import MapSearch from './screens/MapSearch.js';
-import MapData from './screens/MapData.js';
-import { Icon as IconElements } from 'react-native-elements'
+import LiveMap from './screens/MapData.js';
 import Login from './screens/Login.js';
 import Signup from './screens/Signup.js';
 
@@ -23,7 +19,7 @@ const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const uiTheme = {
     palette: {
-        primaryColor: '#002366',
+        primaryColor: '#455a64',
     },
     toolbar: {
         container: {
@@ -79,69 +75,19 @@ const styles = StyleSheet.create({
 });
 
 
-const WelcomeScreen = ({navigation}) => {
+const Welcome = ({navigation}) => {
 	var myRainbow = new Rainbow();
 	myRainbow.setSpectrum('red', 'yellow', 'green');
 	return (
 		<>
 			<View style={styles.nav}>
-			<StatusBar barStyle="dark-content" />
 				<TP.Provider value={getTheme(uiTheme)}>
 					<Toolbar
 						centerElement="ASE Project Group 2 | Home"
 					/>
 				</TP.Provider>
-				<View style={styles.button}>
-					<ThemeProvider theme={buttontheme}>
-						<Button
-						  title="LOGIN"
-						  onPress={()=>{{navigation.navigate('Dashboard')}}}
-						/>
-					</ThemeProvider>
-				</View>
-				<Text style={{color: '#'+myRainbow.colourAt(90)}}>Hello</Text>
-				<IconElements
-				  name='home'
-				  type='font-awesome'
-				  size={50}
-				  color={'#'+myRainbow.colourAt(90)} />
-				  <IconElements
-				  name='home'
-				  type='font-awesome'
-				  size={50}
-				  color={'#'+myRainbow.colourAt(50)} />
-				<IconElements
-				  name='building'
-				  type='font-awesome'
-				  size={25}
-				  reverse={true}
-				  raised={true}
-				  color={'#'+myRainbow.colourAt(0)} />
 			</View>
 		</>
-    );
-}
-
-
-
-const DashboardScreen = ({navigation}) => {
-
-
-	return (
-     <>
-		<View style={styles.nav}>
-		<StatusBar barStyle="dark-content" />
-			<TP.Provider value={getTheme(uiTheme)}>
-				<Toolbar
-					leftElement="menu"
-					centerElement="ASE Project Group 2"
-					onLeftElementPress={
-						() => navigation.openDrawer()
-					}
-				/>
-			</TP.Provider>
-		</View>
-	</>
     );
 }
 
@@ -158,7 +104,7 @@ const Settings = ({navigation}) => {
 				centerElement="ASE Project Group 2 | Settings"
 			/>
 		</TP.Provider>
-		<Text style={{textAlign: 'center', marginTop: 10}}>---Change MapView Settings---</Text>
+		<Text style={{textAlign: 'center', marginTop: 10, fontSize: 20}}>Change MapView Settings</Text>
 		<View style={styles.button}>
 
 		<Text style={{marginBottom: 5}}>Set Search Radius (Meters):</Text>
@@ -168,7 +114,7 @@ const Settings = ({navigation}) => {
 			defaultValue={mapprops.radius+""}
 		/>
 
-		<Text style={{ marginBottom: 5}}>Set Number of Results:</Text>
+		<Text style={{ marginBottom: 5}}>Set Number of Postcodes:</Text>
 		<TextInput
 			style={{height: 30, borderWidth: 1, marginBottom: 10, borderRadius: 5}}
 			onChangeText={lim => setLimi(lim)}
@@ -184,17 +130,16 @@ const Settings = ({navigation}) => {
 				  })}
 				/>
 			</ThemeProvider>
-			<Text>{mapprops.radius} | {mapprops.limit}</Text>
-		</View>
-      </View>
-    );
-}
 
-const Search = ({navigation}) => {
-	return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-		<StatusBar barStyle="light-content" />
-        <Text>Profile</Text>
+			<Divider style={{ marginTop: 10, backgroundColor: '#455a64' , height: 5}} />
+
+			<View style={styles.button}><ThemeProvider theme={buttontheme}>
+				<Button
+				  title="LOGOUT"
+				  onPress={()=>{{console.log("LOGOUT")}}}
+				/>
+			</ThemeProvider></View>
+		</View>
       </View>
     );
 }
@@ -202,9 +147,10 @@ const Search = ({navigation}) => {
 
 const DashboardTabNavigator = createBottomTabNavigator(
 	{
-		Settings,
-		MapData,
+		Welcome,
+		LiveMap,
 		MapSearch,
+		Settings,
 	},
 	{
 		navigationOptions: ({ navigation }) => {
@@ -218,38 +164,6 @@ const DashboardTabNavigator = createBottomTabNavigator(
 		}
 	}
 );
-
-const DashboardStackNavigator = createStackNavigator(
-  {
-    DashboardTabNavigator: DashboardTabNavigator
-  },
-  {
-
-    defaultNavigationOptions: ({ navigation }) => {
-      return {
-        headerLeft: (
-		<>
-          <Icon
-            style={{ paddingLeft: 10, backgroundColor: '#002366', color: 'white' }}
-            onPress={() => navigation.openDrawer()}
-            name="md-menu"
-            size={30}
-          />
-		</>
-        )
-      };
-    }
-  }
-);
-
-const AppDrawerNavigator = createDrawerNavigator({
-  Home: {
-    screen: DashboardStackNavigator
-  },
-  DashboardScreen: {
-    screen: DashboardScreen
-  }
-});
 
 
 const AppSwitchNavigator = createSwitchNavigator({

@@ -1,13 +1,9 @@
-import React, {useEffect, useState, useContext} from 'react';
+import React, {useState} from 'react';
 import { View, Text, TextInput, StyleSheet, Platform, Dimensions, ProgressViewIOS, ProgressBarAndroid } from 'react-native';
 import { Button, ThemeProvider, Icon } from 'react-native-elements';
 import { Toolbar, ThemeContext as TP, getTheme } from 'react-native-material-ui';
 import Constants from 'expo-constants';
-import * as Permissions from 'expo-permissions';
-import * as Location from 'expo-location';
 import MapView, { PROVIDER_GOOGLE, Marker, Circle, Callout}  from 'react-native-maps';
-import { CounterContext, updateRadius } from '../Global.js';
-import { useFocusEffect } from '@react-navigation/core';
 import { withNavigation } from 'react-navigation';
 import { useStateValue  } from '../StateContext.js';
 import Rainbow from 'rainbowvis.js';
@@ -15,7 +11,6 @@ import Rainbow from 'rainbowvis.js';
 const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const MapSearch = ({navigation}) => {
-	var myVar;
 	let gradientColours = new Rainbow();
 	gradientColours.setSpectrum('green', 'yellow', 'red');
 	var {height, width} = Dimensions.get('window');
@@ -26,7 +21,7 @@ const MapSearch = ({navigation}) => {
 	const [dataSize, setDataSize] = useState(0);
 	const [renderMap, setMapRender] = useState(false);
 	const [showLoading, setShowLoading] = useState(false);
-	const [circleRadi, setCircleRadi] = useState(mapprops.radius);
+	//const [circleRadi, setCircleRadi] = useState(mapprops.radius);
 	const [searchPosition, setSearchPosition] = useState({latitude: 0, longitude: 0});
 	const [region, setRegion] = useState({latitude: 0, longitude: 0, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 	const [markers, setMark] = useState([{
@@ -57,7 +52,6 @@ const MapSearch = ({navigation}) => {
 	async function getLongLat() {
 		setMapRender(false);
 		setShowLoading(true);
-		myVar = setTimeout(loading, 10);
 		var rad = parseInt(mapprops.radius);
 		var lim = parseInt(mapprops.limit);
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
@@ -106,7 +100,6 @@ const MapSearch = ({navigation}) => {
 			}
 			listOfMarks.push(obj);
 		}
-		setNumLoad(counter++);
 		console.log(JSON.stringify(listOfMarks));
 
 		let max = 0;
@@ -128,16 +121,15 @@ const MapSearch = ({navigation}) => {
 		for(let i = 0; i < listOfMarks.length; i++) {
 			listOfMarks[i].colour = "#"+gradientColours.colourAt(parseInt(listOfMarks[i].price));
 		}
-		setNumLoad(counter++);
 
 		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
 		setSearchPosition({latitude: lat, longitude: lon});
 		setMark(listOfMarks);
-		setCircleRadi(rad);
+		//setCircleRadi(rad);
 		setShowLoading(false);
 		setMapRender(true);
-		clearTimeout(myVar);
 	}
+
 	var i = 0;
 	return (
       <View style={styles.nav}>
@@ -159,7 +151,7 @@ const MapSearch = ({navigation}) => {
 				  onPress={()=>{{getLongLat()}}}
 				/>
 			</ThemeProvider>
-			<Text>Radius: {mapprops.radius} | Limit: {mapprops.limit}</Text>
+			<Text style={{textAlign: 'center', marginBottom: 10}}>Green -> £ | Yellow -> ££ | Red -> £££ </Text>
 		</View>
 		{ renderMap ? <View><MapView
 			provider={PROVIDER_GOOGLE}
@@ -347,7 +339,6 @@ const MapSearch = ({navigation}) => {
 				 {
 					markers.map(marker => (
 					<React.Fragment key={""+marker.id+marker.num+(i++)}>
-						{/*image={marker.type === 'F' ? require('../assets/images/flat.png') : require('../assets/images/hgreen.png')}*/}
 					<Marker
 					  coordinate={marker.latlng}
 					  zIndex={i++}
@@ -370,8 +361,6 @@ const MapSearch = ({navigation}) => {
 						<Text>Type: {marker.type === 'F' ? 'Flat' : marker.type === 'S' ? 'Semi-Detached' : marker.type === 'T' ? 'Terrace' : 'House'}</Text>
 						<Text>----------</Text>
 						<Text>{marker.address}</Text>
-						<Text>----------</Text>
-						<Text>{marker.colour}</Text>
 						<Text>----------</Text></View>
 					</Callout>
 					</Marker>
@@ -380,7 +369,7 @@ const MapSearch = ({navigation}) => {
 
 				  <Circle
 					  center={searchPosition}
-					  radius={parseInt(circleRadi)}
+					  radius={10}
 				  />
 		</MapView></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : null }
       </View>
@@ -391,7 +380,7 @@ export default withNavigation(MapSearch);
 
 const uiTheme = {
     palette: {
-        primaryColor: '#002366',
+        primaryColor: '#455a64',
     },
     toolbar: {
         container: {

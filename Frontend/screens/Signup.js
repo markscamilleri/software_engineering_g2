@@ -18,11 +18,11 @@ export default function Signup({navigation}) {
     return (
         <View style={styles.container}>
             <Logo />
-            <Form type="Signup" />
+            <Form type="SIGN UP" />
             <View style={styles.signup}>
                 <Text style={styles.signupText}>Already have an account? </Text>
                 <TouchableOpacity onPress={signIn}>
-                    <Text style={styles.signupButton}>Sign in</Text>
+                    <Text style={styles.signupButton}>Sign In</Text>
                 </TouchableOpacity>
             </View>
 

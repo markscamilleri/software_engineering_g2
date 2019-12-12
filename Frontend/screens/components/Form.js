@@ -31,7 +31,7 @@ export default withNavigation(function Form({navigation, ...props}) {
             password.toString(),
         );
         console.log(props.type);
-        if (props.type === 'Login') {
+        if (props.type === 'LOGIN') {
             try {
                 return await fetch(`${BACKEND_ENDPOINT}/login`, {
                     method: 'POST',
@@ -58,7 +58,7 @@ export default withNavigation(function Form({navigation, ...props}) {
             } catch (e) {
                 console.log(e);
             }
-        } else if (props.type === 'Signup') {
+        } else if (props.type === 'SIGN UP') {
             try {
                 console.log('Signing up');
                 return await fetch(`${BACKEND_ENDPOINT}/signup`, {

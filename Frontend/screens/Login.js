@@ -5,7 +5,6 @@ import {
     View,
     TouchableOpacity
 } from 'react-native';
-//import {Actions} from "react-native-router-flux";
 
 import Logo from "./components/Logo";
 import Form from "./components/Form";
@@ -18,12 +17,12 @@ export default function Login({navigation}) {
         return (
             <View style={styles.container}>
                 <Logo/>
-                <Form type={"Login"}/>
+                <Form type={"LOGIN"}/>
                 <View style={styles.signup}>
                     <Text style={styles.signupText}>Don't have an account yet? </Text>
                     <TouchableOpacity onPress={signup}>
 
-                        <Text style={styles.signupButton}>Sign-up</Text>
+                        <Text style={styles.signupButton}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>
 
