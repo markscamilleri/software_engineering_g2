@@ -24,18 +24,19 @@ jobs:
   - stage: test
     before_install:
       - cd ./backend
-      - pip install -r requirements.txt
-      - pip install pytest
-      - pip install pytest-timeout
-      - pip install codecov
+      - pip3 install --upgrade pip
+      - pip3 install -r requirements.txt
+      - pip3 install pytest
+      - pip3 install pytest-timeout
+      - pip3 install codecov
     script:
       - cd frontend
       - npm ci
       - npx jest --ci --passWithNoTests
       - cd ../backend
-      - python -m pytest --timeout 600 test/test_SQLQueue.py
+      - python3 -m pytest --timeout 600 test/test_SQLQueue.py
     after_success:
-      - codecov # submit coverage
+        - codecov # submit coverage
 
 
 #  - stage: deploy staging
