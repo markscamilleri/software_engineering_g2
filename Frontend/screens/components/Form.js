@@ -15,9 +15,14 @@ export default withNavigation(function Form({navigation, ...props}) {
     const [username, setUsername] = useState({username: ''});
     const [password, setPassword] = useState({password: ''});
 
-    const simpleAlert = () => {
-        //function to make simple alert
-        alert('WRONG LOGIN CREDENTIALS');
+    const wrongLoginAlert = () => {
+        alert('Wrong login credentials');
+    };
+    const accountCreatedAlert = () => {
+        alert('Your account has been created, go to login');
+    };
+    const usernameTakenAlert = () => {
+        alert('This username has been taken, please choose another one');
     };
 
     const userAuth = async () => {
@@ -47,7 +52,7 @@ export default withNavigation(function Form({navigation, ...props}) {
                             navigation.navigate('Dashboard')
                         } else if (responseJson.response === "False") {
                             //some code that shows the user that they failed login
-                            simpleAlert()
+                            wrongLoginAlert()
                         }
                     });
             } catch (e) {
@@ -72,9 +77,12 @@ export default withNavigation(function Form({navigation, ...props}) {
                         console.log(responseJson);
                         if(responseJson.response === "False"){
                             //some code showing user has created an account and goes to login page
+                            accountCreatedAlert()
+
                         }
                         else if(responseJson.response === "True"){
                             //some code showing the user that username has been taken and to choose another one
+                            usernameTakenAlert()
                         }
                     });
             } catch (e) {
