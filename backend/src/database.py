@@ -8,7 +8,8 @@ import janus
 import mysql.connector
 import mysql.connector.pooling
 
-from exception import InvalidArgumentException, ProgramClosingException, SingletonException
+from deprecation import deprecated
+from exceptions import InvalidArgumentException, ProgramClosingException, SingletonException
 
 POOL_SIZE = 5
 
@@ -95,15 +96,25 @@ class SQLQueue:
         cursor = self.__immediate_connection.cursor(dictionary=True, buffered=True)
         cursor.execute(query, parameters)
 
-        if fetch_all:
-            return cursor.fetchall()
+        if not cursor.with_rows:
+            result = {}
+        elif fetch_all:
+            result = cursor.fetchall()
+        else:
+            result = cursor.fetchone()
 
-        return cursor.fetchone()
+        self.__immediate_connection.commit()
+        return result
 
+    @deprecated("Changed name to execute_async")
     def execute(self, query: str, parameters: Iterable = None,
                 callback: Optional[Callable[[List[Dict[str, Any]]], None]] = lambda *args, **kwargs: None) -> None:
+        self.execute_async(query, parameters, callback)
+
+    def execute_async(self, query: str, parameters: Iterable = None,
+                callback: Optional[Callable[[List[Dict[str, Any]]], None]] = lambda *args, **kwargs: None) -> None:
         """
-        Places a query in the queue
+        Places a query in the queue to be executed asynchronously
         :param query: Query to run
         :param parameters: Query Parameters
         :param callback: Optional function to run once the query is complete.
@@ -119,9 +130,13 @@ class SQLQueue:
             logger.debug(f"Query \"{query}\" with parameters {parameters} and callback {callback}")
             raise ProgramClosingException("The queue has closed")
 
+    @deprecated("Changed name to execute_sync")
     def execute_with_result(self, query: str, parameters: Iterable = None):
+        self.execute_sync(query, parameters)
+
+    def execute_sync(self, query: str, parameters: Iterable = None):
         """
-        Blocking call
+        Blocking call to execute synchronously
         """
         logger = logging.getLogger(__name__)
 
@@ -129,8 +144,14 @@ class SQLQueue:
         cursor = self.__immediate_connection.cursor(dictionary=True, buffered=True)
         logger.debug(f"Executing the query {query} with parameters {parameters} ")
         cursor.execute(query, parameters)
+
+        if not cursor.with_rows:
+            self.__immediate_connection.commit()
+            return {}
+
         result = cursor.fetchall()
         logger.debug(f"Result: {result}")
+        self.__immediate_connection.commit()
 
         return result
 
@@ -150,7 +171,11 @@ class SQLQueue:
             cursor = connection.cursor(dictionary=True, buffered=True)
             cursor.execute(query['query'], query['parameters'])
 
-            result = cursor.fetchall()
+            if not cursor.with_rows:
+                result = {}
+            else:
+                result = cursor.fetchall()
+
             logger.debug(f"{query_hash}: result: {result}")
             connection.commit()
             connection.close()
@@ -173,4 +198,6 @@ class SQLQueue:
         self.__query_queue.sync_q.join()
         logger.debug("Terminating Consumers")
         self.__async_query_queue_runner_running = False
+        logger.info("Waiting for threads to finish")
+        self.__async_thread.join()
         logger.info("SQLQueue instance closed")
