@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
 const Welcome = ({navigation}) => {
 	var myRainbow = new Rainbow();
 	myRainbow.setSpectrum('red', 'yellow', 'green');
+	const [{ userDetails }, dispatch] = useStateValue();
 	return (
 		<>
 			<View style={styles.nav}>
@@ -87,6 +88,16 @@ const Welcome = ({navigation}) => {
 					/>
 				</TP.Provider>
 			</View>
+			<View style={{alignContent: 'center'}}>
+			<Text style={{fontSize: 20, marginTop: 10, textAlign: 'center'}}>Welcome {userDetails.username}</Text>
+			<Text style={{textAlign: 'center'}}>Welcome to the Map App</Text>
+			<Text style={{textAlign: 'center', marginTop: 10}}>Choose to display your current location and view property prices in 'LiveMap'
+			or enter a given location to view property prices within a given radius in 'MapSearch'. Enjoy!</Text>
+			<Text style={{textAlign: 'center', marginTop: 10}}>Edit your settings within the 'Settings' page. These you can customize
+			your given radius and number of postcodes searched for within the radius. The logout button is located here! </Text>
+			<Text style={{textAlign: 'center', marginTop: 10}}>Properties are colour coded with a gradient effect to visually show their prices where red is the
+			most expensive and green is the cheapest in the radius.</Text>
+				</View>
 		</>
     );
 }
@@ -136,7 +147,7 @@ const Settings = ({navigation}) => {
 			<View style={styles.button}><ThemeProvider theme={buttontheme}>
 				<Button
 				  title="LOGOUT"
-				  onPress={()=>{{console.log("LOGOUT")}}}
+				  onPress={()=>{{console.log("LOGOUT")} {navigation.navigate("Login")}}}
 				/>
 			</ThemeProvider></View>
 		</View>
@@ -178,7 +189,8 @@ const App = createAppContainer(AppSwitchNavigator);
 export default function mem() {
 
   const initialState = {
-    mapprops: { radius: 100, limit: 100 }
+  	  mapprops: { radius: 100, limit: 100 },
+	  userDetails: {username: ''}
   };
 
   const reducer = (state, action) => {
@@ -188,6 +200,11 @@ export default function mem() {
           ...state,
           mapprops: action.params
         };
+		case 'addUsername':
+			return {
+				...state,
+				userDetails: action.params
+			};
 
       default:
         return state;

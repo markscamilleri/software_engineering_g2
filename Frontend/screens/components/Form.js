@@ -8,10 +8,11 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import {withNavigation} from 'react-navigation';
+import { useStateValue  } from '../../StateContext.js';
 
 export default withNavigation(function Form({navigation, ...props}) {
     const BACKEND_ENDPOINT = 'http://34.89.126.252';
-
+    const [{ userDetails }, dispatch] = useStateValue();
     const [username, setUsername] = useState({username: ''});
     const [password, setPassword] = useState({password: ''});
 
@@ -49,7 +50,11 @@ export default withNavigation(function Form({navigation, ...props}) {
                         console.log(responseJson);
                         //console.log(responseJson.response);
                         if (responseJson.response === "True") {
-                            navigation.navigate('Dashboard')
+                            navigation.navigate('Dashboard');
+                            dispatch({
+                                type: 'addUsername',
+                                params: { username: username}
+                            })
                         } else if (responseJson.response === "False") {
                             //some code that shows the user that they failed login
                             wrongLoginAlert()

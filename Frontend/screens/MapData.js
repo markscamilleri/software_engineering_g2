@@ -13,7 +13,7 @@ const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 
 const LiveMap = ({navigation}) => {
 	const [{ mapprops }, dispatch] = useStateValue();
-	//const [circleRadi, setCircleRadi] = useState(mapprops.radius);
+	const [errorMess, setErrorMess] = useState('');
 	let gradientColours = new Rainbow();
 	gradientColours.setSpectrum('green', 'yellow', 'red');
 	const [numLoad, setNumLoad] = useState(0);
@@ -34,8 +34,8 @@ const LiveMap = ({navigation}) => {
 
 	var {height, width} = Dimensions.get('window');
 	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
-	
-	const getLocation = async (address) => { 
+
+	const getLocation = async (address) => {
 		try{
 			const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + address + '&key=' + apikey);
 		    return await response.json();
@@ -51,85 +51,88 @@ const LiveMap = ({navigation}) => {
             if (status === 'granted') {
                 try {
                     let locationdata = await Location.getCurrentPositionAsync({
-						maximumAge: 60000, // only for Android
-						accuracy: Platform.OS === 'android' ? Location.Accuracy.High : Location.Accuracy.High});
+						maximumAge: 0, // only for Android
+						accuracy: Location.Accuracy.High});
 					return locationdata;
                 } catch (error) {
 					console.log('Permission to turn on phone location was denied: ' + error.message);
-					return false;
+					//return false;
                 }
             } else {
 				console.log('Permission to access location was denied' + error.message);
-				return false;
+				//return false;
             }
 
         } catch (error) {
 			console.log('There has been a problem with location: ' + error.message);
-			return false;
+			//return false;
         }
 
     };
-	
+
 	async function getLongLat() {
 		setMapRender(false);
 		setShowLoading(true);
+		setErrorMess('');
 		var rad = parseInt(mapprops.radius);
 		var lim = parseInt(mapprops.limit);
-		let phonelocation = await getPermissions();
-		if(phonelocation) {
-			let phonelat = JSON.parse(phonelocation.coords.latitude);
-			let phonelon = JSON.parse(phonelocation.coords.longitude);
-			console.log(JSON.parse(phonelocation.coords.latitude));
-			const res = await fetch('http://34.89.126.252/getHouses', {
-				method: 'POST',
-				body: JSON.stringify({
-					lat: phonelat,
-					lon: phonelon,
-					radius: rad,
-					limit: lim
-				}),
-				headers: {
-					'Content-Type': 'application/json'
-				},
-			});
-			
-			const data = await res.json();
-			console.log(JSON.stringify(data));
-			console.log(data.length);
-			
+		console.log('HELLO');
+		var phonelocation = await getPermissions();
+		console.log(phonelocation.coords.latitude, phonelocation.coords.longitude);
+		var phonelat = parseFloat(phonelocation.coords.latitude);
+		var phonelon = parseFloat(phonelocation.coords.longitude);
+
+		const res = await fetch('http://34.89.126.252/getHouses', {
+			method: 'POST',
+			body: JSON.stringify({
+				lat: phonelat,
+				lon: phonelon,
+				radius: rad,
+				limit: lim
+			}),
+			headers: {
+				'Accept': 'application/json',
+				'Content-type': 'application/json'
+			},
+		});
+
+		const data = await res.json();
+		console.log(JSON.stringify(data));
+		console.log(data.length);
+		if(data.length > 0) {
 			let listOfMarks = [];
 			var counter = 0;
 			setNumLoad(counter);
-			setDataSize(data.length-1);
-			for(let i = 0; i < data.length; i++) {
+			setDataSize(data.length - 1);
+			for (let i = 0; i < data.length; i++) {
 				setNumLoad(counter++);
 				const houselocation = await getLocation(data[i].paon + " " + data[i].street + " " + data[i].postcode);
 				let lon = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
 				let lat = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
 				let obj = {
-						id:data[i].id,
-						num:data[i].paon,
-						price:data[i].price,
-						address:data[i].paon + " " + data[i].street + " " + data[i].postcode,
-						type:data[i].initial,
-						latlng: {
-						latitude:lat,
-						longitude:lon
-						}
+					id: data[i].id,
+					num: data[i].paon,
+					price: data[i].price,
+					address: data[i].paon + " " + data[i].street + " " + data[i].postcode,
+					type: data[i].initial,
+					latlng: {
+						latitude: lat,
+						longitude: lon
+					}
 				}
 				listOfMarks.push(obj);
 			}
 			console.log(JSON.stringify(listOfMarks));
 
 			let max = 0;
-			for(let i = 0; i < listOfMarks.length; i++) {
+			for (let i = 0; i < listOfMarks.length; i++) {
 				if (listOfMarks[i].price > max) {
 					max = listOfMarks[i].price;
 				}
 			}
 
 			let min = listOfMarks[0].price;
-			for(let i = 0; i < listOfMarks.length; i++) {
+			for (let i = 0; i < listOfMarks.length; i++) {
 				if (listOfMarks[i].price < min) {
 					min = listOfMarks[i].price;
 				}
@@ -137,8 +140,8 @@ const LiveMap = ({navigation}) => {
 			gradientColours.setNumberRange(parseInt(min), parseInt(max));
 			console.log("BIG: ", max, " SMALL: ", min);
 
-			for(let i = 0; i < listOfMarks.length; i++) {
-				listOfMarks[i].colour = "#"+gradientColours.colourAt(parseInt(listOfMarks[i].price));
+			for (let i = 0; i < listOfMarks.length; i++) {
+				listOfMarks[i].colour = "#" + gradientColours.colourAt(parseInt(listOfMarks[i].price));
 			}
 
 			setRegion({latitude: phonelat, longitude: phonelon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
@@ -146,6 +149,9 @@ const LiveMap = ({navigation}) => {
 			setMark(listOfMarks);
 			setMapRender(true);
 			setShowLoading(false);
+		} else {
+			setShowLoading(false);
+			setErrorMess('No Houses Found In Your Area With Current Settings');
 		}
 	}
 	var i = 0;
@@ -369,12 +375,11 @@ const LiveMap = ({navigation}) => {
 				  </React.Fragment>
 				  ))}
 
-				  <Circle 
+				  <Circle
 					  center={phonePosition}
 					  radius={10}
 				  />
 			</MapView>
-			<Text style={{textAlign: 'center'}}>Green -> £ | Yellow -> ££ | Red -> £££ </Text>
 			<View style={styles.button}>
 			<ThemeProvider theme={buttontheme}>
 				<Button
@@ -382,12 +387,12 @@ const LiveMap = ({navigation}) => {
 				  onPress={()=>{{getLongLat()}}}
 				/>
 			</ThemeProvider>
-		</View></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : <View style={styles.button}><ThemeProvider theme={buttontheme}>
+			</View></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text><Text style={{textAlign: 'center'}}>{errorMess}</Text></> : <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text><Text style={{textAlign: 'center'}}>{errorMess}</Text></> : <View style={styles.button}><ThemeProvider theme={buttontheme}>
 				<Button
 				  title="Show Map"
 				  onPress={()=>{{getLongLat()}}}
 				/>
-			</ThemeProvider></View> }
+			</ThemeProvider><Text style={{textAlign: 'center'}}>{errorMess}</Text></View> }
       </View>
     );
 }
@@ -403,7 +408,7 @@ const uiTheme = {
             height: 60,
         },
     },
-	fontFamily: systemFonts 
+	fontFamily: systemFonts
 };
 
 const buttontheme = {
@@ -416,14 +421,14 @@ const buttontheme = {
   }
 }
 const styles = StyleSheet.create({
-	
+
 	container: {
 	  flex: 1,
 	  backgroundColor: '#fff',
 	  alignItems: 'center',
 	  justifyContent: 'center',
 	  fontFamily: systemFonts,
-	}, 
+	},
 	title: {
 	  marginTop: Constants.statusBarHeight + 20,
 	  fontSize: 18,

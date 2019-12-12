@@ -13,6 +13,7 @@ const systemFonts = (Platform.OS === 'android' ? 'Roboto' : 'Arial');
 const MapSearch = ({navigation}) => {
 	let gradientColours = new Rainbow();
 	gradientColours.setSpectrum('green', 'yellow', 'red');
+	const [errorMess, setErrorMess] = useState('');
 	var {height, width} = Dimensions.get('window');
 	const apikey = Platform.OS === 'android' ? Constants.manifest.android.config.googleMaps.apiKey : Constants.manifest.ios.config.googleMapsApiKey;
 	const [{ mapprops }, dispatch] = useStateValue();
@@ -33,13 +34,6 @@ const MapSearch = ({navigation}) => {
 			  longitude: 0
 			},
 		  }]);
-
-	const [load, setLoad] = useState(0.01);
-
-	function loading() {
-		var time = load;
-		setLoad((time + 0.01) % 1);
-	}
 	const getLocation = async (address) => {
 		try{
 			const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + address + '&key=' + apikey);
@@ -52,6 +46,7 @@ const MapSearch = ({navigation}) => {
 	async function getLongLat() {
 		setMapRender(false);
 		setShowLoading(true);
+		setErrorMess('');
 		var rad = parseInt(mapprops.radius);
 		var lim = parseInt(mapprops.limit);
 		const response = await fetch('https://maps.googleapis.com/maps/api/geocode/json?address=' + value + '&key=' + apikey);
@@ -76,58 +71,61 @@ const MapSearch = ({navigation}) => {
 		const data = await res.json();
 		console.log(JSON.stringify(data));
 		console.log(data.length);
-
-		let listOfMarks = [];
-		var counter = 0;
-		setNumLoad(counter);
-		setDataSize(data.length-1);
-		for(let i = 0; i < data.length; i++) {
-			setNumLoad(counter++);
-			const houselocation = await getLocation(data[i].paon + " " + data[i].street + " " + data[i].postcode);
-			let lon = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
-			let lat = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
-			let obj = {
-					id:data[i].id,
-					num:data[i].paon,
-					price:data[i].price,
-					address:data[i].paon + " " + data[i].street + " " + data[i].postcode,
-					type:data[i].initial,
+		if(data.length > 0) {
+			let listOfMarks = [];
+			var counter = 0;
+			setNumLoad(counter);
+			setDataSize(data.length - 1);
+			for (let i = 0; i < data.length; i++) {
+				setNumLoad(counter++);
+				const houselocation = await getLocation(data[i].paon + " " + data[i].street + " " + data[i].postcode);
+				let lon = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lng));
+				let lat = parseFloat(JSON.stringify(houselocation.results[0].geometry.location.lat));
+				let obj = {
+					id: data[i].id,
+					num: data[i].paon,
+					price: data[i].price,
+					address: data[i].paon + " " + data[i].street + " " + data[i].postcode,
+					type: data[i].initial,
 					latlng: {
-					  latitude:lat,
-					  longitude:lon
+						latitude: lat,
+						longitude: lon
 					},
 					colour: ""
+				}
+				listOfMarks.push(obj);
 			}
-			listOfMarks.push(obj);
-		}
-		console.log(JSON.stringify(listOfMarks));
+			console.log(JSON.stringify(listOfMarks));
 
-		let max = 0;
-		for(let i = 0; i < listOfMarks.length; i++) {
-			if (listOfMarks[i].price > max) {
-				max = listOfMarks[i].price;
+			let max = 0;
+			for (let i = 0; i < listOfMarks.length; i++) {
+				if (listOfMarks[i].price > max) {
+					max = listOfMarks[i].price;
+				}
 			}
-		}
 
-		let min = listOfMarks[0].price;
-		for(let i = 0; i < listOfMarks.length; i++) {
-			if (listOfMarks[i].price < min) {
-				min = listOfMarks[i].price;
+			let min = listOfMarks[0].price;
+			for (let i = 0; i < listOfMarks.length; i++) {
+				if (listOfMarks[i].price < min) {
+					min = listOfMarks[i].price;
+				}
 			}
-		}
-		gradientColours.setNumberRange(parseInt(min), parseInt(max));
-		console.log("BIG: ", max, " SMALL: ", min);
+			gradientColours.setNumberRange(parseInt(min), parseInt(max));
+			console.log("BIG: ", max, " SMALL: ", min);
 
-		for(let i = 0; i < listOfMarks.length; i++) {
-			listOfMarks[i].colour = "#"+gradientColours.colourAt(parseInt(listOfMarks[i].price));
-		}
+			for (let i = 0; i < listOfMarks.length; i++) {
+				listOfMarks[i].colour = "#" + gradientColours.colourAt(parseInt(listOfMarks[i].price));
+			}
 
-		setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
-		setSearchPosition({latitude: lat, longitude: lon});
-		setMark(listOfMarks);
-		//setCircleRadi(rad);
-		setShowLoading(false);
-		setMapRender(true);
+			setRegion({latitude: lat, longitude: lon, latitudeDelta: 0.015, longitudeDelta: 0.0121});
+			setSearchPosition({latitude: lat, longitude: lon});
+			setMark(listOfMarks);
+			setShowLoading(false);
+			setMapRender(true);
+		} else {
+			setShowLoading(false);
+			setErrorMess('No Houses Found In Your Area With Current Settings');
+		}
 	}
 
 	var i = 0;
@@ -151,7 +149,7 @@ const MapSearch = ({navigation}) => {
 				  onPress={()=>{{getLongLat()}}}
 				/>
 			</ThemeProvider>
-			<Text style={{textAlign: 'center', marginBottom: 10}}>Green -> £ | Yellow -> ££ | Red -> £££ </Text>
+			<Text style={{textAlign: 'center'}}>{errorMess}</Text>
 		</View>
 		{ renderMap ? <View><MapView
 			provider={PROVIDER_GOOGLE}
@@ -371,7 +369,7 @@ const MapSearch = ({navigation}) => {
 					  center={searchPosition}
 					  radius={10}
 				  />
-		</MapView></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text></> : null }
+		</MapView></View> : showLoading ?  Platform.OS === 'android' ? <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text><Text style={{textAlign: 'center'}}>{errorMess}</Text></> : <><Text style={{textAlign: 'center'}}>...Loading Map...</Text><Text style={{textAlign: 'center'}}>Loaded {numLoad}/{dataSize}</Text><Text style={{textAlign: 'center'}}>{errorMess}</Text></> : null }
       </View>
     );
 }
